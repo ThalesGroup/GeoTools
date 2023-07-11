@@ -1,3 +1,5 @@
+[![License](https://img.shields.io/github/license/openSmock/GeoTools.svg)](./LICENSE)
+
 # GeoTools
 Geographic Tools as Coordinates &amp; Kinematics
 
