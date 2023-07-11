@@ -1,0 +1,13 @@
+SmalltalkCISpec {
+  #loading : [
+    SCIMetacelloLoadSpec {
+      #baseline : 'GeoTools',
+      #platforms : [ #pharo ]
+    }
+  ],
+  #testing : {
+    #include : {
+      #packages : [ 'GeoTools*-Tests' ]
+    }
+  }
+}
