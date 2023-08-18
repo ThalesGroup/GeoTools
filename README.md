@@ -3,7 +3,7 @@
 [![Pharo 12 CI](https://github.com/OpenSmock/GeoTools/actions/workflows/Pharo12CI.yml/badge.svg)](https://github.com/OpenSmock/GeoTools/actions/workflows/Pharo12CI.yml)
 
 # GeoTools
-Geographic Tools as Coordinates &amp; Kinematics
+Geographic Tools as Coordinates &amp; Kinematics.
 
 ## Installation
 
