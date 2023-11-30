@@ -156,6 +156,9 @@ AbsoluteCoordinates class >> zero [
 
 { #category : #comparing }
 AbsoluteCoordinates >> = anAbsoluteCoordinates [
+
+	anAbsoluteCoordinates ifNil:[ ^ false ].
+
 	^ self latitudeInDegrees = anAbsoluteCoordinates latitudeInDegrees 
 		and: [ self longitudeInDegrees = anAbsoluteCoordinates longitudeInDegrees
 		and: [ self altitudeInMeters = anAbsoluteCoordinates altitudeInMeters ]]

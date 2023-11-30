@@ -38,6 +38,9 @@ CartesianCoordinates class >> zero [
 
 { #category : #comparing }
 CartesianCoordinates >> = aCartesianCoordinates [
+	
+	aCartesianCoordinates ifNil:[ ^ false ].
+
 	^ self xInMeters = aCartesianCoordinates xInMeters
 		and: [ self yInMeters = aCartesianCoordinates yInMeters  
 		and: [ self zInMeters = aCartesianCoordinates zInMeters ]]

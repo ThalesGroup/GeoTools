@@ -36,6 +36,9 @@ PolarCoordinates class >> zero [
 
 { #category : #comparing }
 PolarCoordinates >> = aPolarCoordinates [
+	
+	aPolarCoordinates ifNil:[ ^ false ].
+
 	^ self azimuthInRadians = aPolarCoordinates azimuthInRadians 
 		and: [ self distanceInMeters = aPolarCoordinates distanceInMeters and:[self elevationInMeters  = aPolarCoordinates elevationInMeters ] ]
 ]
