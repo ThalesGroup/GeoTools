@@ -3,7 +3,7 @@ I am position of a GeoObject.
 "
 Class {
 	#name : #AbsoluteCoordinates,
-	#superclass : #AbstractCoordinates,
+	#superclass : #SmockAbstractCoordinates,
 	#instVars : [
 		'latitudeInDegrees',
 		'longitudeInDegrees',

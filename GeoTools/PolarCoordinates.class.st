@@ -3,7 +3,7 @@ I am a PolarCoordinates.
 "
 Class {
 	#name : #PolarCoordinates,
-	#superclass : #AbstractCoordinates,
+	#superclass : #SmockAbstractCoordinates,
 	#instVars : [
 		'azimuthInRadians',
 		'distanceInMeters',

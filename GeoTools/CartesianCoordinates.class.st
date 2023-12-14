@@ -3,7 +3,7 @@ I am Cartesian Coordinates.
 "
 Class {
 	#name : #CartesianCoordinates,
-	#superclass : #AbstractCoordinates,
+	#superclass : #SmockAbstractCoordinates,
 	#instVars : [
 		'xInMeters',
 		'yInMeters',
