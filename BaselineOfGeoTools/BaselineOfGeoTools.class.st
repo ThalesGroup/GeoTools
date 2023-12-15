@@ -31,7 +31,7 @@ BaselineOfGeoTools >> coreDependencies: spec [
 
 	spec
 		baseline: 'OpenSmock'
-		with: [ spec repository: 'github://OpenSmock/OpenSmock' ].
+		with: [ spec loads: #('Core'); repository: 'github://OpenSmock/OpenSmock' ].
 
 	spec
 		baseline: 'Units'
