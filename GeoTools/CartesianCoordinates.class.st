@@ -33,7 +33,8 @@ CartesianCoordinates class >> xInMeters: aXMeters yInMeters: aYMeters zInMeters:
 
 { #category : #'instance creation' }
 CartesianCoordinates class >> zero [
-	^self xInMeters: 0 yInMeters: 0 zInMeters: 0
+
+	^ self xInMeters: 0 yInMeters: 0 zInMeters: 0
 ]
 
 { #category : #comparing }
@@ -48,14 +49,14 @@ CartesianCoordinates >> = aCartesianCoordinates [
 
 { #category : #copying }
 CartesianCoordinates >> asPoint [
-	self xInMeters ifNil:[^nil].
-	self yInMeters ifNil:[^nil].
-	^self xInMeters @ self yInMeters 
-	
+
+	self isValid ifFalse: [ ^ nil ].
+	^ self xInMeters @ self yInMeters
 ]
 
 { #category : #copying }
 CartesianCoordinates >> copy [
+
 	| copy |
 	copy := super copy.
 	copy xInMeters: self xInMeters.		
@@ -65,13 +66,15 @@ CartesianCoordinates >> copy [
 ]
 
 { #category : #testing }
-CartesianCoordinates >> isEmpty [ 
-	^self xInMeters isNil and:[self yInMeters isNil and:[self zInMeters isNil]]
+CartesianCoordinates >> isEmpty [
+
+	^ self xInMeters isNil and: [ self yInMeters isNil and: [ self zInMeters isNil ] ]
 ]
 
 { #category : #testing }
-CartesianCoordinates >> isValid [ 
-	^self xInMeters notNil and:[self yInMeters notNil]
+CartesianCoordinates >> isValid [
+
+	^ self xInMeters notNil and: [ self yInMeters notNil ]
 ]
 
 { #category : #printing }
@@ -86,30 +89,36 @@ CartesianCoordinates >> printOn: aStream [
 
 { #category : #accessing }
 CartesianCoordinates >> xInMeters [
+
 	^ xInMeters
 ]
 
 { #category : #accessing }
 CartesianCoordinates >> xInMeters: anObject [
+
 	xInMeters := anObject
 ]
 
 { #category : #accessing }
 CartesianCoordinates >> yInMeters [
+
 	^ yInMeters
 ]
 
 { #category : #accessing }
 CartesianCoordinates >> yInMeters: anObject [
+
 	yInMeters := anObject
 ]
 
 { #category : #accessing }
 CartesianCoordinates >> zInMeters [
+
 	^ zInMeters
 ]
 
 { #category : #accessing }
 CartesianCoordinates >> zInMeters: anObject [
+
 	zInMeters := anObject
 ]
