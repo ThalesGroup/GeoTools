@@ -174,23 +174,6 @@ CoordinatesTests >> testAbsoluteCoordinatesZero [
 ]
 
 { #category : #tests }
-CoordinatesTests >> testAbstractCoordinates [
-	| coord |
-	coord := AbstractCoordinates new.
-	self assert: coord isEmpty equals: true.
-	self assert: coord isValid equals: false.
-	self assert: coord asPoint equals: nil.
-]
-
-{ #category : #tests }
-CoordinatesTests >> testAbstractCoordinatesCopy [
-	| coord copy |
-	coord := AbstractCoordinates new.
-	copy := coord copy.
-	self assert: copy ~~ coord.
-]
-
-{ #category : #tests }
 CoordinatesTests >> testCartesianCoordinates [
 	| coord |
 	coord := CartesianCoordinates new.

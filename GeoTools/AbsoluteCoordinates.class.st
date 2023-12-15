@@ -3,7 +3,7 @@ I am position of a GeoObject.
 "
 Class {
 	#name : #AbsoluteCoordinates,
-	#superclass : #AbstractCoordinates,
+	#superclass : #SmockAbstractCoordinates,
 	#instVars : [
 		'latitudeInDegrees',
 		'longitudeInDegrees',
@@ -151,7 +151,8 @@ AbsoluteCoordinates class >> usaSeattle [
 
 { #category : #'instance creation' }
 AbsoluteCoordinates class >> zero [
-	^self latitudeInDegrees: 0 longitudeInDegrees: 0 altitudeInMeters: 0
+
+	^ self latitudeInDegrees: 0 longitudeInDegrees: 0 altitudeInMeters: 0
 ]
 
 { #category : #comparing }
@@ -166,41 +167,46 @@ AbsoluteCoordinates >> = anAbsoluteCoordinates [
 
 { #category : #accessing }
 AbsoluteCoordinates >> altitude [
-	self altitudeInMeters ifNil:[^nil].
+
+	self altitudeInMeters ifNil: [ ^ nil ].
 	^ self altitudeInMeters units: #meters
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> altitudeInMeters [
+
 	^ altitudeInMeters
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> altitudeInMeters: aNumber [
+
 	altitudeInMeters := aNumber
 ]
 
 { #category : #converting }
 AbsoluteCoordinates >> asLatLonDegreesPoint [
-	self latitudeInDegrees ifNil:[^nil].
-	self longitudeInDegrees ifNil:[^nil].
-	^self latitudeInDegrees @ self longitudeInDegrees 
+
+	self isValid ifFalse: [ ^ nil ].
+	^ self latitudeInDegrees @ self longitudeInDegrees
 ]
 
 { #category : #converting }
 AbsoluteCoordinates >> asLatLonRadiansPoint [
-	self latitudeInDegrees ifNil:[^nil].
-	self longitudeInDegrees ifNil:[^nil].
-	^self latitudeInRadians @ self longitudeInRadians 
+
+	self isValid ifFalse: [ ^ nil ].
+	^ self latitudeInRadians @ self longitudeInRadians
 ]
 
 { #category : #converting }
 AbsoluteCoordinates >> asPoint [
-	^self asLatLonDegreesPoint
+
+	^ self asLatLonDegreesPoint
 ]
 
 { #category : #copying }
 AbsoluteCoordinates >> copy [
+
 	| copy |
 	copy := super copy.
 	copy altitudeInMeters: self altitudeInMeters.		
@@ -210,69 +216,84 @@ AbsoluteCoordinates >> copy [
 ]
 
 { #category : #accessing }
-AbsoluteCoordinates >> isEmpty [ 
-	^self latitudeInDegrees isNil and:[self longitudeInDegrees isNil and:[self altitudeInMeters isNil]]
+AbsoluteCoordinates >> isEmpty [
+
+	^ self latitudeInDegrees isNil and: [ self longitudeInDegrees isNil and: [ self altitudeInMeters isNil ] ]
 ]
 
 { #category : #accessing }
-AbsoluteCoordinates >> isValid [ 
-	^self latitudeInDegrees notNil and:[self longitudeInDegrees notNil]
+AbsoluteCoordinates >> isValid [
+
+	^ self latitudeInDegrees notNil and: [ self longitudeInDegrees notNil ]
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> latitude [
-	self latitudeInDegrees ifNil:[^nil].
+
+	self latitudeInDegrees ifNil: [ ^ nil ].
 	^ self latitudeInDegrees units: #arcdegree
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> latitudeInDegrees [
+
 	^ latitudeInDegrees
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> latitudeInDegrees: anObject [
-	latitudeInDegrees := self normalizeLatitudeInDegrees: anObject.
+
+	latitudeInDegrees := self normalizeLatitudeInDegrees: anObject
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> latitudeInRadians [
-	^ latitudeInDegrees degreesToRadians
+
+	^ latitudeInDegrees ifNotNil:[ :e | e degreesToRadians ]
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> latitudeInRadians: anObject [
+
+	anObject ifNil:[ latitudeInDegrees := nil. ^ self ].
 	self latitudeInDegrees: anObject radiansToDegrees
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> longitude [
-	self longitudeInDegrees ifNil:[^nil].
+
+	self longitudeInDegrees ifNil: [ ^ nil ].
 	^ self longitudeInDegrees units: #arcdegree
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> longitudeInDegrees [
+
 	^ longitudeInDegrees
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> longitudeInDegrees: anObject [
+
 	longitudeInDegrees := self wrapLongitude: anObject
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> longitudeInRadians [
-	^ longitudeInDegrees degreesToRadians
+
+	^ longitudeInDegrees ifNotNil:[ :e | e degreesToRadians ]
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> longitudeInRadians: anObject [
-	 self longitudeInDegrees: anObject radiansToDegrees
+
+	anObject ifNil:[ longitudeInDegrees := nil. ^ self ].
+	self longitudeInDegrees: anObject radiansToDegrees
 ]
 
 { #category : #accessing }
 AbsoluteCoordinates >> normalizeLatitudeInDegrees: aValueInDegrees [
+
 	aValueInDegrees ifNil: [ ^aValueInDegrees ].
 	aValueInDegrees > 90 ifTrue: [ ^ 90 ].
 	aValueInDegrees < -90 ifTrue: [ ^ -90 ].
@@ -290,6 +311,7 @@ AbsoluteCoordinates >> printOn: aStream [
 
 { #category : #accessing }
 AbsoluteCoordinates >> wrapLongitude: aValueInDegrees [
+
 	| result |
 	aValueInDegrees ifNil: [ ^aValueInDegrees ].
 	result := aValueInDegrees.

@@ -3,7 +3,7 @@ I am a PolarCoordinates.
 "
 Class {
 	#name : #PolarCoordinates,
-	#superclass : #AbstractCoordinates,
+	#superclass : #SmockAbstractCoordinates,
 	#instVars : [
 		'azimuthInRadians',
 		'distanceInMeters',
@@ -31,7 +31,8 @@ PolarCoordinates class >> azimuthInRadians: anAzimuth distanceInMeters: aDistanc
 
 { #category : #'instance creation' }
 PolarCoordinates class >> zero [
-	^self azimuthInRadians: 0 distanceInMeters: 0 elevationInMeters: 0
+
+	^ self azimuthInRadians: 0 distanceInMeters: 0 elevationInMeters: 0
 ]
 
 { #category : #comparing }
@@ -52,18 +53,34 @@ PolarCoordinates >> asCartesianCoordinates [
 		zInMeters: self azimuthInRadians sin * self distanceInMeters
 ]
 
+{ #category : #testing }
+PolarCoordinates >> asPoint [
+
+	self isValid ifFalse:[ ^ nil ].
+	^ self azimuthInDegrees @ self distanceInMeters 
+]
+
+{ #category : #accessing }
+PolarCoordinates >> azimuthInDegrees [
+
+	^ azimuthInRadians ifNotNil: [ :e | e radiansToDegrees ]
+]
+
 { #category : #accessing }
 PolarCoordinates >> azimuthInRadians [
+
 	^ azimuthInRadians
 ]
 
 { #category : #accessing }
 PolarCoordinates >> azimuthInRadians: anObject [
+
 	azimuthInRadians := anObject
 ]
 
 { #category : #copying }
 PolarCoordinates >> copy [
+
 	| copy |
 	copy := super copy.
 	copy azimuthInRadians: self azimuthInRadians.		
@@ -74,32 +91,38 @@ PolarCoordinates >> copy [
 
 { #category : #accessing }
 PolarCoordinates >> distanceInMeters [
+
 	^ distanceInMeters
 ]
 
 { #category : #accessing }
 PolarCoordinates >> distanceInMeters: anObject [
+
 	distanceInMeters := anObject
 ]
 
 { #category : #accessing }
 PolarCoordinates >> elevationInMeters [
+
 	^ elevationInMeters
 ]
 
 { #category : #accessing }
 PolarCoordinates >> elevationInMeters: anObject [
+
 	elevationInMeters := anObject
 ]
 
 { #category : #testing }
-PolarCoordinates >> isEmpty [ 
-	^self azimuthInRadians isNil and:[self distanceInMeters isNil and:[self elevationInMeters isNil]]
+PolarCoordinates >> isEmpty [
+
+	^ self azimuthInRadians isNil and: [ self distanceInMeters isNil and: [ self elevationInMeters isNil ] ]
 ]
 
 { #category : #testing }
-PolarCoordinates >> isValid [ 
-	^self azimuthInRadians notNil and:[self distanceInMeters notNil]
+PolarCoordinates >> isValid [
+
+	^ self azimuthInRadians notNil and: [ self distanceInMeters notNil ]
 ]
 
 { #category : #copying }
