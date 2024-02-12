@@ -123,6 +123,21 @@ AbsoluteCoordinates class >> latitudeInRadians: aLatitudeInRadians longitudeInRa
 ]
 
 { #category : #'instance creation' }
+AbsoluteCoordinates class >> random [
+	<script: 'self random inspect'>
+
+	| random |
+	random := Random new.
+	^ self
+		  latitudeInDegrees: random next * 90 * (random next > 0.5
+				   ifTrue: [ 1 ]
+				   ifFalse: [ 1 negated ])
+		  longitudeInDegrees: random next * 180 * (random next > 0.5
+				   ifTrue: [ 1 ]
+				   ifFalse: [ 1 negated ])
+]
+
+{ #category : #'instance creation' }
 AbsoluteCoordinates class >> usaLosAngeles [
 
 	^ AbsoluteCoordinates 

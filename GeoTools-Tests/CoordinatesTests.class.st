@@ -165,6 +165,22 @@ CoordinatesTests >> testAbsoluteCoordinatesPrintOn [
 ]
 
 { #category : #tests }
+CoordinatesTests >> testAbsoluteCoordinatesRandom [
+	| coord |
+	coord := AbsoluteCoordinates random.
+	self deny: coord isEmpty.
+	self assert: coord isValid.
+	self deny: coord latitudeInDegrees isNil.
+	self deny: coord latitude isNil.
+	self deny: coord longitudeInDegrees isNil.
+	self deny: coord longitude isNil.
+	
+	"random not generate an altitude value"
+	self assert: coord altitudeInMeters isNil.
+	self assert: coord altitude isNil.
+]
+
+{ #category : #tests }
 CoordinatesTests >> testAbsoluteCoordinatesZero [
 	| coord |
 	coord := AbsoluteCoordinates zero.
