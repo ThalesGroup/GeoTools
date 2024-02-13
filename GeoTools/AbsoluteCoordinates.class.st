@@ -202,11 +202,11 @@ AbsoluteCoordinates >> altitudeInMeters: aNumber [
 { #category : #converting }
 AbsoluteCoordinates >> asGeometryPoint [
 
-	| _coord |
-	_coord := G2DCoordinates new.
-	_coord x: self longitudeInDegrees.
-	_coord y: self latitudeInDegrees.
-	^GPoint coordinates: _coord.
+	| coord |
+	coord := G2DCoordinates new.
+	coord x: self longitudeInDegrees.
+	coord y: self latitudeInDegrees.
+	^GPoint coordinates: coord.
 ]
 
 { #category : #converting }
