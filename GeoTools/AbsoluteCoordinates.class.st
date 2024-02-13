@@ -200,6 +200,16 @@ AbsoluteCoordinates >> altitudeInMeters: aNumber [
 ]
 
 { #category : #converting }
+AbsoluteCoordinates >> asGeometryPoint [
+
+	| coord |
+	coord := G2DCoordinates new.
+	coord x: self longitudeInDegrees.
+	coord y: self latitudeInDegrees.
+	^GPoint coordinates: coord.
+]
+
+{ #category : #converting }
 AbsoluteCoordinates >> asLatLonDegreesPoint [
 
 	self isValid ifFalse: [ ^ nil ].
