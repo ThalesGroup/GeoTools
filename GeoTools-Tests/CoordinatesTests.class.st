@@ -39,6 +39,14 @@ CoordinatesTests >> testAbsoluteCoordinates [
 ]
 
 { #category : #tests }
+CoordinatesTests >> testAbsoluteCoordinatesAsGeometryPoint [
+	| coord |
+	
+	coord := AbsoluteCoordinates frBrest.
+	self assert: coord asGeometryPoint equals: (GPoint x: -4.48333 y: 48.3897).
+]
+
+{ #category : #tests }
 CoordinatesTests >> testAbsoluteCoordinatesAsPoint [
 	| coord |
 	coord := AbsoluteCoordinates new.
