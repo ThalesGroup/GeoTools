@@ -82,6 +82,17 @@ kin courseInDegrees: 180.
 kin headingInDegrees: 2.
 ```
 
+## Map Projection 
+
+Use ```GeodesicUtilities``` to compute angle and distance between Geodesic (lat/long) coordinates, taking in account the earth curve.
+
+```smalltalk
+coord1 := AbsoluteCoordinates latitudeInDegrees: 48.3897 longitudeInDegrees: -4.48333 altitudeInMeters: 52. "Brest french city position"
+coord2 := AbsoluteCoordinates latitudeInDegrees: 48.8667 longitudeInDegrees: 2.33333 altitudeInMeters: 79. "Paris french city position"
+
+convertGeodesicToAzimuthInRadiansFrom: coord1 to: coord2
+```
+
 ## Installation
 
 To install GeoTools on your Pharo image you can just execute the following script:
