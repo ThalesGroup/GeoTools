@@ -3,7 +3,7 @@
 [![Pharo 12 CI](https://github.com/OpenSmock/GeoTools/actions/workflows/Pharo12CI.yml/badge.svg)](https://github.com/OpenSmock/GeoTools/actions/workflows/Pharo12CI.yml)
 
 # GeoTools
-Geographic Tools as Coordinates &amp; Kinematics.
+Geographic Tools as `Coordinates`, `Kinematics` and `GeodesicUtilities`.
 
 ## Coordinates tools
 
@@ -82,15 +82,20 @@ kin courseInDegrees: 180.
 kin headingInDegrees: 2.
 ```
 
-## Map Projection 
+## Map projection 
+
+### Geodesic Utilities class
 
 Use ```GeodesicUtilities``` to compute angle and distance between Geodesic (lat/long) coordinates, taking in account the earth curve.
 
 ```smalltalk
-coord1 := AbsoluteCoordinates latitudeInDegrees: 48.3897 longitudeInDegrees: -4.48333 altitudeInMeters: 52. "Brest french city position"
-coord2 := AbsoluteCoordinates latitudeInDegrees: 48.8667 longitudeInDegrees: 2.33333 altitudeInMeters: 79. "Paris french city position"
+"Brest french city position"
+coord1 := AbsoluteCoordinates latitudeInDegrees: 48.3897 longitudeInDegrees: -4.48333 altitudeInMeters: 52.
+"Paris french city position"
+coord2 := AbsoluteCoordinates latitudeInDegrees: 48.8667 longitudeInDegrees: 2.33333 altitudeInMeters: 79.
 
-convertGeodesicToAzimuthInRadiansFrom: coord1 to: coord2
+"Return an azimuth in Radians between the positions of these two cities depending Earth curve"
+GeodesicUtilities convertGeodesicToAzimuthInRadiansFrom: coord1 to: coord2.
 ```
 
 ## Installation
