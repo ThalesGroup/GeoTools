@@ -28,6 +28,18 @@ WGS84 class >> inverseFlattening [
 ]
 
 { #category : #'standard values' }
+WGS84 class >> k0 [
+
+	^ 0.9996
+]
+
+{ #category : #'standard values' }
+WGS84 class >> scaleFactor [
+
+	^ self k0
+]
+
+{ #category : #'standard values' }
 WGS84 class >> semiMajorAxisInMeters [
 	"https://en.wikipedia.org/wiki/World_Geodetic_System"
 
