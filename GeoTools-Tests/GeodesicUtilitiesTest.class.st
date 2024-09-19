@@ -43,7 +43,37 @@ GeodesicUtilitiesTest >> testCheckAngleIsBetweenTwoOthers [
 ]
 
 { #category : #tests }
-GeodesicUtilitiesTest >> testConvertGeodesicToAzimuthInRadiansFromTwoPoints [
+GeodesicUtilitiesTest >> testConvertGeodesicToAzimuthInRadiansFromTo [
+
+	| from to angleInRadians |
+	
+	from := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0.
+	to := AbsoluteCoordinates latitudeInDegrees: 10 longitudeInDegrees: 0.
+		
+	angleInRadians := GeodesicUtilities convertGeodesicToAzimuthInRadiansFrom: from to: to.
+	self assert: (angleInRadians radiansToDegrees closeTo: 0 precision: 1e-10).
+	
+	from := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0.
+	to := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 10.
+		
+	angleInRadians := GeodesicUtilities convertGeodesicToAzimuthInRadiansFrom: from to: to.
+	self assert: (angleInRadians radiansToDegrees closeTo: 90 precision: 1e-10).
+	
+	from := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0.
+	to := AbsoluteCoordinates latitudeInDegrees: -10 longitudeInDegrees: 0.
+		
+	angleInRadians := GeodesicUtilities convertGeodesicToAzimuthInRadiansFrom: from to: to.
+	self assert: (angleInRadians radiansToDegrees closeTo: 180 precision: 1e-10).
+	
+	from := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0.
+	to := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: -10.
+		
+	angleInRadians := GeodesicUtilities convertGeodesicToAzimuthInRadiansFrom: from to: to.
+	self assert: (angleInRadians radiansToDegrees closeTo: 270 precision: 1e-10).
+]
+
+{ #category : #tests }
+GeodesicUtilitiesTest >> testConvertGeodesicToAzimuthInRadiansFromTo2 [
 
 	| originPointAbsCoord endPointAbsCoord azRad|
 	
@@ -59,6 +89,19 @@ GeodesicUtilitiesTest >> testConvertGeodesicToAzimuthInRadiansFromTwoPoints [
 	azRad := GeodesicUtilities convertGeodesicToAzimuthInRadiansFrom: originPointAbsCoord to: endPointAbsCoord.
 		
 	self assert: (azRad radiansToDegrees closeTo: 76.42078534394 precision: 1e-10) equals: true. 
+]
+
+{ #category : #tests }
+GeodesicUtilitiesTest >> testConvertGeodesicToAzimuthInRadiansFromTo3 [
+
+	| originPointAbsCoord endPointAbsCoord azRad|
+	
+	originPointAbsCoord := AbsoluteCoordinates latitudeInDegrees: 48 longitudeInDegrees: -4.
+	endPointAbsCoord := AbsoluteCoordinates latitudeInDegrees: 48 longitudeInDegrees: 4.
+
+	azRad := GeodesicUtilities 	convertGeodesicToAzimuthInRadiansFrom: originPointAbsCoord to: endPointAbsCoord.
+	self assert: (azRad radiansToDegrees closeTo: 87.03 precision: 1e-2) equals: true.
+	
 ]
 
 { #category : #tests }
