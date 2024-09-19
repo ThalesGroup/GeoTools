@@ -1,5 +1,13 @@
 "
 I am Cartesian Coordinates.
+
+The geocentric coordinate system is a geographic coordinate system in which the Earth is modeled as an ellipsoid in a right-handed XYZ (3D Cartesian) system, measured from the center of the Earth. In this system:
+
+- X points towards the prime meridian
+- Y points to 90° outside of the equatorial plane
+- Z points in the direction of the North Pole.
+
+It is important to note that the geocentric coordinate system is not a planar coordinate system based on a map projection. It is used internally as a transient system, serving as a computational framework in several geographical transformation methods.
 "
 Class {
 	#name : #CartesianCoordinates,
