@@ -35,7 +35,7 @@ BaselineOfGeoTools >> coreDependencies: spec [
 
 	spec
 		baseline: 'Units'
-		with: [ spec repository: 'github://zweidenker/Units' ].
+		with: [ spec repository: 'github://OpenSmock/Units:master' ].
 ]
 
 { #category : #baselines }
