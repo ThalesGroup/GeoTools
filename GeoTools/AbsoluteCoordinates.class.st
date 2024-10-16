@@ -85,6 +85,15 @@ AbsoluteCoordinates class >> frParis [
 ]
 
 { #category : #'instance creation' }
+AbsoluteCoordinates class >> frStRenan [
+
+	^ AbsoluteCoordinates 
+    latitudeInDegrees: 48.4328
+    longitudeInDegrees: -4.6219
+    altitudeInMeters: 60
+]
+
+{ #category : #'instance creation' }
 AbsoluteCoordinates class >> latitudeInDegrees: aLatitudeInDegrees longitudeInDegrees: aLongitudeInDegrees [
 
 	| coordinates |
