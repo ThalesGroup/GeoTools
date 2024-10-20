@@ -105,7 +105,7 @@ To install GeoTools on your Pharo image you can just execute the following scrip
 ```smalltalk
 Metacello new
    baseline: 'GeoTools';
-   repository: 'github://OpenSmock/GeoTools:main';
+   repository: 'github://OpenSmock/GeoTools:main/src';
    load.
 ```
 
