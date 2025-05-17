@@ -1,9 +1,13 @@
+[![Pharo 11](https://img.shields.io/badge/Pharo-11-%23aac9ff.svg)](https://pharo.org/download)
+[![Pharo 12](https://img.shields.io/badge/Pharo-12-%23aac9ff.svg)](https://pharo.org/download)
+[![Pharo 13](https://img.shields.io/badge/Pharo-13-%23aac9ff.svg)](https://pharo.org/download)
+
 [![License](https://img.shields.io/github/license/openSmock/GeoTools.svg)](./LICENSE)
-[![Pharo 11 CI](https://github.com/OpenSmock/GeoTools/actions/workflows/Pharo11CI.yml/badge.svg)](https://github.com/OpenSmock/GeoTools/actions/workflows/Pharo11CI.yml)
-[![Pharo 12 CI](https://github.com/OpenSmock/GeoTools/actions/workflows/Pharo12CI.yml/badge.svg)](https://github.com/OpenSmock/GeoTools/actions/workflows/Pharo12CI.yml)
+[![Unit tests](https://github.com/OpenSmock/GeoTools/actions/workflows/CI.yml/badge.svg)](https://github.com/OpenSmock/GeoTools/actions/workflows/CI.yml)
 
 # GeoTools
-Geographic Tools as `Coordinates`, `Kinematics` and `GeodesicUtilities`.
+
+Geographic Tools for Pharo as `Coordinates`, `Kinematics` and `GeodesicUtilities`.
 
 ## Coordinates tools
 
@@ -13,7 +17,7 @@ Use these classes to store informations on geographical position in different co
 
 Use ```AbsoluteCoordinates``` to store an absolute coordinate.
 
-Absolute coordinate is build by ```latitude``` (degrees or radians), ```longitude``` (degrees or radians) and ```altitude``` (meters). 
+An absolute coordinate is defined by ```latitude``` (degrees or radians), ```longitude``` (degrees or radians) and ```altitude``` (meters).
 
 Example : create absolute coordinates.
 
@@ -53,7 +57,7 @@ polarCoord := PolarCoordinates zero. "This constructor create a polar coordinate
 cartCoord := polarCoord asCartesianCoordinates.
 ```
 
-### Common coordinates features
+### Common Features for all coordinate types
 
 To know if a coordinate is valid :
 
@@ -67,11 +71,11 @@ To know if a coordinate is empty :
 coord isEmpty.
 ```
 
-There are a lot of functionnaly to discover.
+There are a lot of functionality to discover.
 
 ## Kinematics tools
 
-Use ```Kinematics``` to store informations on ```course``` (direction in degrees or radians), ```speed``` (m/s, knots) and ```heading``` (orientation in degrees or radians).
+Use ```Kinematics``` class to store informations on ```course``` (direction in degrees or radians), ```speed``` (m/s, knots) and ```heading``` (orientation in degrees or radians).
 
 Example : create kinematics information.
 
@@ -111,5 +115,5 @@ Metacello new
 
 ## Dependencies
 
-- [OpenSmock - Core](https://github.com/OpenSmock/OpenSmock)
+- [OpenSmock(Core)](https://github.com/OpenSmock/OpenSmock)
 - [Units](https://github.com/zweidenker/Units)
