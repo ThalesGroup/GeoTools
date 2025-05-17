@@ -111,4 +111,5 @@ Metacello new
 
 ## Dependencies
 
+- [OpenSmock - Core](https://github.com/OpenSmock/OpenSmock)
 - [Units](https://github.com/zweidenker/Units)
