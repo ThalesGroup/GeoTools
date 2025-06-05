@@ -21,6 +21,58 @@ AbsoluteCoordinates class >> ausSydney [
 		altitudeInMeters: 58
 ]
 
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> charDegree [
+
+	^Character value: 16rB0
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> charMinute [
+	^(Character value: 16r27)
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> charPoint [
+	^$.
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> charSecond [
+	^(Character value: 16r22)
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> cleanLatitudeString: aString [
+	"clean latitude string from parsing file characters"
+
+	| _cleanString |
+	_cleanString := aString.
+	_cleanString notNil ifTrue:[
+		(_cleanString at: 1) = $" ifTrue: 
+			[_cleanString := _cleanString copyFrom: 2 to: _cleanString size - 1.
+			_cleanString := _cleanString copyReplaceAll: '""' with: '"'].
+	].
+
+	^_cleanString
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> createFromLatString: latitudeString lonString: longitudeString [
+
+	| _lat _lon |
+
+	(latitudeString isNil or:[latitudeString isEmpty]) ifTrue:[^nil].
+	(longitudeString isNil or:[longitudeString isEmpty]) ifTrue:[^nil].
+
+	_lat := self readLatitudeString: latitudeString.
+	_lon := self readLongitudeString: longitudeString.
+
+	(_lat isNil or:[_lon isNil]) ifTrue:[^nil].
+
+	^self new latitudeInDegrees: _lat; longitudeInDegrees: _lon; yourself.
+]
+
 { #category : #'instance creation' }
 AbsoluteCoordinates class >> frBordeaux [
 
@@ -93,6 +145,88 @@ AbsoluteCoordinates class >> frStRenan [
     altitudeInMeters: 60
 ]
 
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> geoStringFormat: aString [
+	"read a geo string and return the format"
+
+	| _number |
+	(self isStringMatchingDMC: aString) ifTrue:[^#DMD].
+	(self isStringMatchingDMS: aString) ifTrue:[^#DMS].
+	(aString matchesRegex:'[0-9]*\.?[0-9]*') ifTrue: [^#DMS].
+	(aString matchesRegex: '.*[0-9]* [0-9]* [0-9]*.*') ifTrue:[^#DMS].
+	(aString matchesRegex: '.*[0-9]* *° *[0-9]* *'' *[0-9]* *".*') ifTrue:[^#DMS].
+	_number := aString asNumber.
+	_number notNil ifTrue:[
+		_number printString = aString ifTrue:[^#Decimal].
+	].
+
+	^nil
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> in: aString removeChar: aChar [
+
+| rs ws |
+	rs := aString readStream.
+	ws := WriteStream on: String new.
+	[ rs atEnd ] whileFalse: [
+		| str |
+		str := rs upTo: aChar.
+		ws nextPutAll: str ].
+	rs close.
+	ws close.
+	^ ws contents
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> in: aString removeFirstChar: aChar [
+
+	| rs ws str |
+	rs := aString readStream.
+	ws := WriteStream on: String new.
+	str := rs upTo: aChar.
+	ws nextPutAll: str.
+	str := rs upToEnd.
+	ws nextPutAll: str.
+	rs close.
+	ws close.
+	^ ws contents
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> isStringMatchingDMC: aString [
+	"self isStringMatchingDMC:  '[Point] X°X.X'' [Point]"
+
+	| _pattern |
+	_pattern := String new writeStream.
+	_pattern nextPutAll: '*'.
+	_pattern nextPutAll: self charDegree asSymbol asText.
+	_pattern nextPutAll: '*'.
+	_pattern nextPutAll: self charPoint asSymbol asText.
+	_pattern nextPutAll: '*'.
+	"_pattern nextPutAll: self charMinute asSymbol asText.
+	_pattern nextPutAll: '*'."
+
+	^_pattern contents match: aString
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> isStringMatchingDMS: aString [
+	"self isStringMatchingDMS: '000°00''00''''N'	"
+
+	| _pattern |
+	_pattern := String new writeStream.
+	_pattern nextPutAll: '*'.
+	_pattern nextPutAll: self charDegree asSymbol asText.
+	_pattern nextPutAll: '*'.
+	_pattern nextPutAll: self charMinute asSymbol asText.
+	_pattern nextPutAll: '*'.
+	_pattern nextPutAll: self charSecond asSymbol asText.
+	_pattern nextPutAll: '*'.
+
+	^_pattern contents match: aString
+]
+
 { #category : #'instance creation' }
 AbsoluteCoordinates class >> latitudeInDegrees: aLatitudeInDegrees longitudeInDegrees: aLongitudeInDegrees [
 
@@ -144,6 +278,138 @@ AbsoluteCoordinates class >> random [
 		  longitudeInDegrees: random next * 180 * (random next > 0.5
 				   ifTrue: [ 1 ]
 				   ifFalse: [ 1 negated ])
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> readDMCString: aString [ 
+	"Degree Minute Centième de minute"
+	"N 49°36.99'"
+	
+	^self readDMMString: aString
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> readDMDString: aString [ 
+	"Degree Minute en décimal"
+	"	N 49°36.999 	"
+	
+	| _string rs degree minute sign m d |
+	aString isString ifFalse: [^aString].
+	_string := aString.
+
+	(('*S*' match: _string) or:[('*W*' match: _string) or:[('*O*' match: _string)]]) ifTrue:[sign := -1] ifFalse:[sign := 1].
+
+	_string := _string removeChar: $N.
+	_string := _string removeChar: $S.
+	_string := _string removeChar: $E.
+	_string := _string removeChar: $W.
+	_string := _string removeChar: $O.
+
+	rs := ReadStream on: _string.
+	degree := (rs upTo: self charDegree) asNumber.
+	minute := (rs upToEnd) asNumber.
+
+	"conversion"
+	m := (minute ) / 60.
+	d := degree + m.
+	^d * sign asFloat
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> readDMMString: aString [ 
+	"Degree Minute Millième de minute"
+	"	N 49°36.999'	"
+	
+	^self readDMDString: aString
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> readDMSString: aString [ 
+	"Degree Minute Second"
+
+	| rs degree minute second sign s m d _string |
+	aString isString ifFalse: [^aString].
+	_string := aString.
+
+	(('*S*' match: _string) or:[('*W*' match: _string) or:[('*O*' match: _string)]]) ifTrue:[sign := -1] ifFalse:[sign := 1].
+
+	_string := _string removeChar: $N.
+	_string := _string removeChar: $S.
+	_string := _string removeChar: $E.
+	_string := _string removeChar: $W.
+	_string := _string removeChar: $O.
+
+	rs := ReadStream on: _string.
+	degree := (rs upTo: self charDegree) asNumber.
+	minute := (rs upTo: self charMinute) asNumber. 
+	second := (rs upTo: self charSecond) asNumber.
+
+	"conversion"
+	s := second / 60.
+	m := (minute + s) / 60.
+	d := degree + m. 
+	^d * sign asFloat
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> readLatitudeString: aString [
+	"read a latitude string and return the latitude value"
+
+	| _format _string |
+	(aString isNil or:[aString isString not]) ifTrue:[^nil].
+	aString isEmpty ifTrue:[^nil].
+	_string := self cleanLatitudeString: aString.
+
+	_format := self geoStringFormat: _string.
+	_format isNil ifFalse:[
+		_format = #DMD ifTrue:[^self readDMDString: _string].
+		_format = #DMS ifTrue:[
+			(_string matchesRegex: '.*[0-9]+ [0-9]+ [0-9]+.*') ifTrue:[^self readSpacedDMSString: _string].
+			^self readDMSString: _string
+		].
+		_format = #Decimal ifTrue:[^_string asNumber].
+	].
+
+	^nil
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> readLongitudeString: aString [
+	"read a longitude string and return the longitude value"
+
+ 	^self readLatitudeString: aString
+]
+
+{ #category : #'reading tools' }
+AbsoluteCoordinates class >> readSpacedDMSString: aString [
+	"Degree Minute Second"
+
+	| rs degree minute second sign s m d _string |
+	aString isString ifFalse: [ ^ aString ].
+	_string := aString.
+	sign := 1.
+	_string regex: '[N|n|E|e].*' matchesDo: [ :str |
+		sign := 1.
+		_string := self in: _string removeChar: $N.
+		_string := self in: _string removeChar: $E ].
+	_string regex: '[S|s|W|w|O|o].*' matchesDo: [ :str |
+		sign := -1.
+		_string := self in: _string removeChar: $S.
+		_string := self in: _string removeChar: $W.
+		_string := self in: _string removeChar: $O ].
+	(_string matchesRegex: ' [0-9].*') ifTrue: [
+		_string := self in: _string removeFirstChar: Character space ].
+
+	rs := ReadStream on: _string.
+	degree := (rs upTo: Character space) asNumber.
+	minute := (rs upTo: Character space) asNumber.
+	second := (rs upTo: Character space) asNumber.
+
+	"conversion"
+	s := second / 60.
+	m := minute + s / 60.
+	d := degree + m.
+	^ d * sign asFloat
 ]
 
 { #category : #'instance creation' }
