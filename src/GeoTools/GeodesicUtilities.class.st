@@ -326,6 +326,62 @@ GeodesicUtilities class >> localPolar: aPolarCoordinates toGeodesicFrom: anOrigi
 	
 ]
 
+{ #category : #converting }
+GeodesicUtilities class >> preciseConvertGeodesicToAzimuthInRadiansFrom: startAbsoluteCoordinate to: endAbsoluteCoordinate [
+	"Compute azimut between two Geodesic (lat/long) coordinates and return azimuth in radians"
+
+	<tacplot60>
+	| d5 d6 d7 d8 d9 d10 d11 d12 d14 d13 d15 d16 d17 d19 d20 d21 d22 d23 d24 d25 d26 d27 d28 break |
+	
+	d5 := (startAbsoluteCoordinate latitudeInRadians tan
+	       * WGS84 semiMinorAxisInMeters / WGS84 semiMajorAxisInMeters)
+		      arcTan.
+	d6 := (endAbsoluteCoordinate latitudeInRadians tan
+	       * WGS84 semiMinorAxisInMeters / WGS84 semiMajorAxisInMeters)
+		      arcTan.
+	d7 := d5 cos.
+	d8 := d6 cos.
+	d9 := d5 sin.
+	d10 := d6 sin.
+	d27 := WGS84 flattening / 16.
+	d11 := endAbsoluteCoordinate longitudeInRadians
+	       - startAbsoluteCoordinate longitudeInRadians.
+	d12 := d11.
+	d13 := d11.
+	d14 := d12 sin.
+	d15 := d12 cos.
+	d28 := 0.
+	break := false.
+
+	[ d28 < 4 and: [ break not ] ] whileTrue: [
+		d16 := d8 * d14.
+		d17 := d7 * d10 - (d9 * d8 * d15).
+		d20 := (d16 * d16 + (d17 * d17)) sqrt.
+		d21 := d9 * d10 + (d7 * d8 * d15).
+		" !!! Math.atan2(y,x) => (x,y) theta "
+		d22 := (d21 @ d20) theta.
+		d20 = 0 ifTrue: [ ^0 ].
+		d23 := d7 * d8 * d14 / d20.
+		d24 := 1 - (d23 * d23).
+		d25 := d24 < 1e-14
+			       ifTrue: [ 0 ]
+			       ifFalse: [ d21 - (2 * d9 * d10 / d24) ].
+		d26 := d27 * d24 * (4 + (WGS84 flattening * (4 - (3 * d24)))).
+		d19 := d12.
+		d16 := d25 + (d26 * d21 * (-1 + (2 * d25 * d25))).
+		d17 := 1 - d26 * WGS84 flattening * d23 * (d22 + (d26 * d20 * d16)).
+		d12 := d13 + d17.
+		d14 := d12 sin.
+		d15 := d12 cos.
+		break := (d12 - d19) abs < 1e-10.
+		break ifFalse: [ d28 := d28 + 1 ] ].
+
+	d28 := (d7 * d10 - (d9 * d8 * d15) @ (d8 * d14)) theta.
+	^ d28 negative
+		  ifTrue: [ d28 + (2 * Float pi) ]
+		  ifFalse: [ d28 ]
+]
+
 { #category : #tools }
 GeodesicUtilities class >> projectedRadiusInMCenter: anAbsoluteCoordinates radius: aDistanceInM azimuth: anAzimuthInDegrees projection: aMapProjection [
 
