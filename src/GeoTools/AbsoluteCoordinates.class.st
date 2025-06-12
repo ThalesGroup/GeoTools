@@ -499,6 +499,20 @@ AbsoluteCoordinates >> asLatLonRadiansPoint [
 ]
 
 { #category : #converting }
+AbsoluteCoordinates >> asLonLatDegreesPoint [
+
+	self isValid ifFalse: [ ^ nil ].
+	^ self longitudeInDegrees @ self latitudeInDegrees
+]
+
+{ #category : #converting }
+AbsoluteCoordinates >> asLonLatRadiansPoint [
+
+	self isValid ifFalse: [ ^ nil ].
+	^ self longitudeInRadians @ self latitudeInRadians
+]
+
+{ #category : #converting }
 AbsoluteCoordinates >> asPoint [
 
 	^ self asLatLonDegreesPoint
