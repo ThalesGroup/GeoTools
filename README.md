@@ -2,8 +2,8 @@
 [![Pharo 12](https://img.shields.io/badge/Pharo-12-%23aac9ff.svg)](https://pharo.org/download)
 [![Pharo 13](https://img.shields.io/badge/Pharo-13-%23aac9ff.svg)](https://pharo.org/download)
 
-[![License](https://img.shields.io/github/license/openSmock/GeoTools.svg)](./LICENSE)
-[![Unit tests](https://github.com/OpenSmock/GeoTools/actions/workflows/CI.yml/badge.svg)](https://github.com/OpenSmock/GeoTools/actions/workflows/CI.yml)
+[![License](https://img.shields.io/github/license/ThalesGroup/GeoTools.svg)](./LICENSE)
+[![Unit tests](https://github.com/ThalesGroup/GeoTools/actions/workflows/CI.yml/badge.svg)](https://github.com/ThalesGroup/GeoTools/actions/workflows/CI.yml)
 
 # GeoTools
 
@@ -109,7 +109,7 @@ To install GeoTools on your Pharo image you can just execute the following scrip
 ```smalltalk
 Metacello new
    baseline: 'GeoTools';
-   repository: 'github://OpenSmock/GeoTools:main/src';
+   repository: 'github://ThalesGroup/GeoTools:main/src';
    load.
 ```
 
