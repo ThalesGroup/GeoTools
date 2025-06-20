@@ -21,8 +21,17 @@ GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distan
 
 	^ self
 		  absoluteCoordinatesFrom: anAbsoluteCoordinates
-		  distanceInNM: (aDistanceInM / 1000 / 1.852)
+		  distance: (aDistanceInM / 1000 / 1.852)
 		  azimuthInRadians: anAzimuthInDegrees degreesToRadians
+]
+
+{ #category : #tools }
+GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distance: aDistanceInM azimuthInRadians: anAzimuthInRadians [
+
+	^ self
+		  absoluteCoordinatesFrom: anAbsoluteCoordinates
+		  distanceInNM: (aDistanceInM / 1000 / 1.852)
+		  azimuthInRadians: anAzimuthInRadians
 ]
 
 { #category : #tools }
