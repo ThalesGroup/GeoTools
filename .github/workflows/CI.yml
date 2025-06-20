@@ -6,6 +6,7 @@ env:
 on:
   pull_request: #necessary to display "check" step in a PR
     type: [labeled]
+  workflow_dispatch: #manual trigger
 
 jobs:
   tests:
