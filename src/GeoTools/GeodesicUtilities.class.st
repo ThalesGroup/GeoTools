@@ -57,6 +57,17 @@ GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distan
 ]
 
 { #category : #tools }
+GeodesicUtilities class >> atan2: y x: x [
+    (x = 0.0 and: [ y = 0.0 ]) ifTrue: [ ^ 0.0 ].
+    (x > 0) ifTrue: [ ^ (y / x) arcTan ].
+    (x < 0 and: [ y >= 0 ]) ifTrue: [ ^ ((y / x) arcTan) + Float pi ].
+    (x < 0 and: [ y < 0 ]) ifTrue: [ ^ ((y / x) arcTan) - Float pi ].
+    (x = 0 and: [ y > 0 ]) ifTrue: [ ^ Float pi / 2 ].
+    (x = 0 and: [ y < 0 ]) ifTrue: [ ^ -1 * (Float pi / 2) ].
+    ^ 0.0
+]
+
+{ #category : #tools }
 GeodesicUtilities class >> checkAngle: anAngleInRad isBetween: aStartValueInRad and: anEndValueInRad [ 
 	"check if anAngleInRad is between startAngle and endAngle. Deal with the 0 :
 	self checkAngle: 0 isBetween: 355 and: 5 => true
@@ -280,6 +291,28 @@ GeodesicUtilities class >> convertGeodesicToDistanceInMeterFrom: startAbsoluteCo
 	d19 := d26 * (-3 + (4 * d21 * d21)) * (-3 + (4 * d26 * d26)).
 	d32 := d31 * d21 * (d26 + ((d31 / 4) * (d17 - ((d31 / 6) * d19)))).
 	^ WGS84 semiMinorAxisInMeters * d30 * (d23 - d32)
+]
+
+{ #category : #tools }
+GeodesicUtilities class >> destinationFrom: startCoord distance: d azimuth: azimuthRad [
+    | R δ φ1 λ1 φ2 λ2 x y |
+    R := WGS84 semiMajorAxisInMeters.
+    δ := d / R.
+
+    φ1 := startCoord latitudeInRadians.
+    λ1 := startCoord longitudeInRadians.
+
+    φ2 := ((φ1 sin * δ cos) + ((φ1 cos * δ sin * azimuthRad cos))) arcSin.
+
+    x := (δ cos) - (φ1 sin * φ2 sin).
+    y := azimuthRad sin * δ * φ1 cos.
+
+    λ2 := λ1 + (self atan2: y x: x).
+
+    ^ AbsoluteCoordinates
+        latitudeInDegrees: φ2 radiansToDegrees 
+        longitudeInDegrees: λ2 radiansToDegrees 
+        altitudeInMeters: startCoord altitudeInMeters.
 ]
 
 { #category : #tools }
