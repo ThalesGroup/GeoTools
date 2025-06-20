@@ -8,15 +8,11 @@ I am Geodetic calculus :
 Class {
 	#name : #GeodesicUtilities,
 	#superclass : #Object,
+	#classInstVars : [
+		'poleCurveRadius'
+	],
 	#category : #'GeoTools-MapProjection'
 }
-
-{ #category : #constants }
-GeodesicUtilities class >> PoleCurveRadius [
-
-	^ (WGS84 semiMajorAxisInMeters * WGS84 semiMajorAxisInMeters) /
-		WGS84 semiMinorAxisInMeters 
-]
 
 { #category : #constants }
 GeodesicUtilities class >> SquaredExcentricity [
@@ -76,6 +72,12 @@ GeodesicUtilities class >> checkAngle: anAngleInRad isBetween: aStartValueInRad 
 	^middle <= end
 ]
 
+{ #category : #cleanup }
+GeodesicUtilities class >> cleanUp [
+
+	poleCurveRadius := nil
+]
+
 { #category : #private }
 GeodesicUtilities class >> computeECEFXYZ: anOriginAbsoluteCoordinates fromLocalXYZ: aLocalCartesianCoordinates [
 
@@ -126,7 +128,7 @@ GeodesicUtilities class >> computeECEFXYZFromLgLatAlt: anAbsoluteCoordinates [
 	h := anAbsoluteCoordinates altitudeInMeters.
 	
 	V := ((self SquaredReducedExcentricity * coslat) + 1) sqrt.
-	N := self PoleCurveRadius / V.
+	N := self poleCurveRadius / V.
 	
 	^ CartesianCoordinates 
 		xInMeters: (N + h) * coslat * coslon
@@ -152,7 +154,7 @@ GeodesicUtilities class >> computeLgLatAltFromECEFXYZ: aCartesianCoordinates [
 		lat := (z @ dh) theta.
 		coslat := lat cos.
 		V := ((self SquaredReducedExcentricity * coslat * coslat) + 1) sqrt.
-		N := self PoleCurveRadius / V.
+		N := self poleCurveRadius / V.
 		z := aCartesianCoordinates zInMeters + (N * self SquaredExcentricity * lat sin) ].
 	
 	absoluteCoordinates latitudeInRadians: (z @ dh) theta.
@@ -321,6 +323,17 @@ GeodesicUtilities class >> localPolar: aPolarCoordinates toGeodesicFrom: anOrigi
 	geocentric := self computeECEFXYZ: anOriginAbsoluteCoordinates fromLocalXYZ: cartesianCoordinates.
 	^ self computeLgLatAltFromECEFXYZ: geocentric.
 	
+]
+
+{ #category : #constants }
+GeodesicUtilities class >> poleCurveRadius [
+
+	poleCurveRadius ifNil: [
+		poleCurveRadius := WGS84 semiMajorAxisInMeters
+		                   * WGS84 semiMajorAxisInMeters
+		                   / WGS84 semiMinorAxisInMeters ].
+
+	^ poleCurveRadius
 ]
 
 { #category : #converting }
