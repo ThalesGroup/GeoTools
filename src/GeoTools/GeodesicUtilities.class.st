@@ -17,17 +17,25 @@ Class {
 }
 
 { #category : #tools }
-GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distance: aDistanceInM azimuth: anAzimuthInDegrees [ 
-	"Formule de transformation tirée du livre de traité de navigation, c'est pourquoi elle fonctionne avec des NM"
-	| absoluteCoordinates distanceInNM deltaLat latArr div deltaLong longArr |
+GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distance: aDistanceInM azimuth: anAzimuthInDegrees [
 
-	distanceInNM := aDistanceInM / 1000 / 1.852. "Convert km into nautic miles"
-	deltaLat := anAzimuthInDegrees degreesToRadians cos * distanceInNM / 60.0.
+	^ self
+		  absoluteCoordinatesFrom: anAbsoluteCoordinates
+		  distanceInNM: (aDistanceInM / 1000 / 1.852)
+		  azimuthInRadians: anAzimuthInDegrees degreesToRadians
+]
+
+{ #category : #tools }
+GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distanceInNM: aDistanceInNM azimuthInRadians: anAzimuthInRadians [ 
+	"Formule de transformation tirée du livre de traité de navigation, c'est pourquoi elle fonctionne avec des NM"
+	| absoluteCoordinates deltaLat latArr div deltaLong longArr |
+
+	deltaLat := anAzimuthInRadians cos * aDistanceInNM / 60.0.
 	latArr := anAbsoluteCoordinates latitudeInDegrees  + deltaLat.
 	
 	div := ((latArr + anAbsoluteCoordinates latitudeInDegrees) degreesToRadians / 2.0) cos.
 	deltaLong := ((div = 0)
-		ifFalse:[(anAzimuthInDegrees degreesToRadians sin / (div) abs * distanceInNM / 60.0)] 
+		ifFalse:[(anAzimuthInRadians sin / (div) abs * aDistanceInNM / 60.0)] 
 		ifTrue:[0]).
 
 	longArr := anAbsoluteCoordinates longitudeInDegrees + deltaLong.	
@@ -36,7 +44,7 @@ GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distan
 	(absoluteCoordinates longitudeInDegrees < -360 or:[absoluteCoordinates longitudeInDegrees > 360]) ifTrue:[^AbsoluteCoordinates zero].
 	(absoluteCoordinates latitudeInDegrees < -360 or:[absoluteCoordinates latitudeInDegrees > 360]) ifTrue:[^AbsoluteCoordinates zero].
 
-	^absoluteCoordinates
+	^ absoluteCoordinates
 ]
 
 { #category : #tools }
