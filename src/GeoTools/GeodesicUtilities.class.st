@@ -10,18 +10,11 @@ Class {
 	#superclass : #Object,
 	#classInstVars : [
 		'poleCurveRadius',
-		'squaredExcentricity'
+		'squaredExcentricity',
+		'squaredReducedExcentricity'
 	],
 	#category : #'GeoTools-MapProjection'
 }
-
-{ #category : #constants }
-GeodesicUtilities class >> SquaredReducedExcentricity [
-
-	^ ((WGS84 semiMajorAxisInMeters * WGS84 semiMajorAxisInMeters) -
-		(WGS84 semiMinorAxisInMeters * WGS84 semiMinorAxisInMeters)) /
-		(WGS84 semiMinorAxisInMeters * WGS84 semiMinorAxisInMeters).
-]
 
 { #category : #tools }
 GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distance: aDistanceInM azimuth: anAzimuthInDegrees [ 
@@ -69,7 +62,8 @@ GeodesicUtilities class >> checkAngle: anAngleInRad isBetween: aStartValueInRad 
 GeodesicUtilities class >> cleanUp [
 
 	poleCurveRadius := nil.
-	squaredExcentricity := nil
+	squaredExcentricity := nil.
+	squaredReducedExcentricity := nil
 ]
 
 { #category : #private }
@@ -121,7 +115,7 @@ GeodesicUtilities class >> computeECEFXYZFromLgLatAlt: anAbsoluteCoordinates [
 	coslon := anAbsoluteCoordinates longitudeInRadians cos.
 	h := anAbsoluteCoordinates altitudeInMeters.
 	
-	V := ((self SquaredReducedExcentricity * coslat) + 1) sqrt.
+	V := ((self squaredReducedExcentricity * coslat) + 1) sqrt.
 	N := self poleCurveRadius / V.
 	
 	^ CartesianCoordinates 
@@ -147,7 +141,7 @@ GeodesicUtilities class >> computeLgLatAltFromECEFXYZ: aCartesianCoordinates [
 	1 to: 4 do: [ :i |
 		lat := (z @ dh) theta.
 		coslat := lat cos.
-		V := ((self SquaredReducedExcentricity * coslat * coslat) + 1) sqrt.
+		V := ((self squaredReducedExcentricity * coslat * coslat) + 1) sqrt.
 		N := self poleCurveRadius / V.
 		z := aCartesianCoordinates zInMeters + (N * self squaredExcentricity * lat sin) ].
 	
@@ -412,4 +406,20 @@ GeodesicUtilities class >> squaredExcentricity [
 		                        * WGS84 semiMajorAxisInMeters) ].
 
 	^ squaredExcentricity
+]
+
+{ #category : #constants }
+GeodesicUtilities class >> squaredReducedExcentricity [
+
+	squaredReducedExcentricity ifNil: [
+		squaredReducedExcentricity := WGS84 semiMajorAxisInMeters
+		                              * WGS84 semiMajorAxisInMeters
+		                              -
+		                              (WGS84 semiMinorAxisInMeters
+		                               * WGS84 semiMinorAxisInMeters)
+		                              /
+		                              (WGS84 semiMinorAxisInMeters
+		                               * WGS84 semiMinorAxisInMeters) ].
+
+	^ squaredReducedExcentricity
 ]
