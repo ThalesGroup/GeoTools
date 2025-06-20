@@ -79,7 +79,6 @@ GeodesicUtilities class >> checkAngle: anAngleInRad isBetween: aStartValueInRad 
 { #category : #private }
 GeodesicUtilities class >> computeECEFXYZ: anOriginAbsoluteCoordinates fromLocalXYZ: aLocalCartesianCoordinates [
 
-	<tacplot60>
 	| xor yor zor lon lat slon slat clon clat clonclat clonslat slonslat slonclat ECEFXYZOrigin |
 	ECEFXYZOrigin := self computeECEFXYZFromLgLatAlt: anOriginAbsoluteCoordinates.
 	
@@ -117,7 +116,6 @@ GeodesicUtilities class >> computeECEFXYZ: anOriginAbsoluteCoordinates fromLocal
 { #category : #private }
 GeodesicUtilities class >> computeECEFXYZFromLgLatAlt: anAbsoluteCoordinates [
 
-	<tacplot60>
 	| coslat coslat2 sinlat sinlon coslon h V N |
 	
 	coslat := anAbsoluteCoordinates latitudeInRadians cos.
@@ -139,7 +137,6 @@ GeodesicUtilities class >> computeECEFXYZFromLgLatAlt: anAbsoluteCoordinates [
 { #category : #private }
 GeodesicUtilities class >> computeLgLatAltFromECEFXYZ: aCartesianCoordinates [
 
-	<tacplot60>
 	| z x2 y2 d2 dh lat coslat V N absoluteCoordinates |
 	
 	absoluteCoordinates := AbsoluteCoordinates new.
@@ -166,7 +163,7 @@ GeodesicUtilities class >> computeLgLatAltFromECEFXYZ: aCartesianCoordinates [
 { #category : #converting }
 GeodesicUtilities class >> convertGeodesicToAzimuthInRadiansFrom: startAbsoluteCoordinate to: endAbsoluteCoordinate [
 	"Compute azimut between two Geodesic (lat/long) coordinates and return azimuth in radians"
-	<tacplot60>
+
 	| d5 d6 d7 d8 d9 d10 d11 d12 d14 d13 d15 d16 d17 d19 d20 d21 d22 d23 d24 d25 d26 d27 d28 break |
 	
 	(startAbsoluteCoordinate longitudeInRadians closeTo: endAbsoluteCoordinate longitudeInRadians precision: 1e-7) ifTrue: 
@@ -224,7 +221,7 @@ GeodesicUtilities class >> convertGeodesicToAzimuthInRadiansFrom: startAbsoluteC
 { #category : #converting }
 GeodesicUtilities class >> convertGeodesicToDistanceInMeterFrom: startAbsoluteCoordinate to: endAbsoluteCoordinate [
 	"Compute distance between two Geodesic (lat/long) coordinates and return in meter"
-	<tacplot60>
+
 	| d5 d6 d7 d8 d9 d10 d11 d12 d14 d15 d16 d17 d18 d19 d20 d21 d22 d23 d24 d25 d26 d27 d28 d29 d30 d31 d32 xxx l |
 
 	(startAbsoluteCoordinate longitudeInRadians closeTo: endAbsoluteCoordinate longitudeInRadians precision: 1e-7) ifTrue: 
@@ -318,7 +315,7 @@ GeodesicUtilities class >> localPolar: aPolarCoordinates toGeodesicFrom: anOrigi
 	"Compute the geodesic position of a specified line end, knowing its azimuth, elevation, length and start geodesic position. Warning: that method doesn't take in account the earth curve as orthodromic2geodesic does.
  But that method takes in account the altitude in the calculus."
 	"Return an AbsoluteCoordinates"
-	<tacplot60>
+
 	| cartesianCoordinates geocentric |
 	cartesianCoordinates := aPolarCoordinates asCartesianCoordinates.
 	geocentric := self computeECEFXYZ: anOriginAbsoluteCoordinates fromLocalXYZ: cartesianCoordinates.
@@ -330,7 +327,6 @@ GeodesicUtilities class >> localPolar: aPolarCoordinates toGeodesicFrom: anOrigi
 GeodesicUtilities class >> preciseConvertGeodesicToAzimuthInRadiansFrom: startAbsoluteCoordinate to: endAbsoluteCoordinate [
 	"Compute azimut between two Geodesic (lat/long) coordinates and return azimuth in radians"
 
-	<tacplot60>
 	| d5 d6 d7 d8 d9 d10 d11 d12 d14 d13 d15 d16 d17 d19 d20 d21 d22 d23 d24 d25 d26 d27 d28 break |
 	
 	d5 := (startAbsoluteCoordinate latitudeInRadians tan
