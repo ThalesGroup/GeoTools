@@ -285,6 +285,15 @@ GeodesicUtilities class >> convertGeodesicToDistanceInMeterFrom: startAbsoluteCo
 { #category : #tools }
 GeodesicUtilities class >> isAzimuthTowardsAreaFrom: anAbsCoordOrigin azimuth: anAzimuthInDegree area: aListOfAbsoluteCoords [
 
+	^ self
+		  isAzimuthTowardsAreaFrom: anAbsCoordOrigin
+		  azimuthInRadians: anAzimuthInDegree degreesToRadians
+		  area: aListOfAbsoluteCoords
+]
+
+{ #category : #tools }
+GeodesicUtilities class >> isAzimuthTowardsAreaFrom: anAbsCoordOrigin azimuthInRadians: anAzimuthInRadians area: aListOfAbsoluteCoords [
+
 	| listAngles isPointingArea azRad |
 	isPointingArea := false.
 
@@ -295,7 +304,7 @@ GeodesicUtilities class >> isAzimuthTowardsAreaFrom: anAbsCoordOrigin azimuth: a
 		               self convertGeodesicToAzimuthInRadiansFrom: anAbsCoordOrigin to: absCoord ]) asOrderedCollection.
 	listAngles add: listAngles first.
 
-	azRad := anAzimuthInDegree degreesToRadians.
+	azRad := anAzimuthInRadians.
 
 	isPointingArea := false.
 	listAngles withIndexDo: [ :a :i |
