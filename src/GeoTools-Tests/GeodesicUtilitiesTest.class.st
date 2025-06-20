@@ -7,6 +7,14 @@ Class {
 	#category : #'GeoTools-Tests'
 }
 
+{ #category : #running }
+GeodesicUtilitiesTest >> tearDown [
+
+	GeodesicUtilities cleanUp.
+
+	super tearDown
+]
+
 { #category : #tests }
 GeodesicUtilitiesTest >> testCheckAngleIsBetweenTwoOthers [
 

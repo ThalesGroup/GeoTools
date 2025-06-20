@@ -8,44 +8,43 @@ I am Geodetic calculus :
 Class {
 	#name : #GeodesicUtilities,
 	#superclass : #Object,
+	#classInstVars : [
+		'poleCurveRadius',
+		'squaredExcentricity',
+		'squaredReducedExcentricity'
+	],
 	#category : #'GeoTools-MapProjection'
 }
 
-{ #category : #constants }
-GeodesicUtilities class >> PoleCurveRadius [
+{ #category : #tools }
+GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distance: aDistanceInM azimuth: anAzimuthInDegrees [
 
-	^ (WGS84 semiMajorAxisInMeters * WGS84 semiMajorAxisInMeters) /
-		WGS84 semiMinorAxisInMeters 
-]
-
-{ #category : #constants }
-GeodesicUtilities class >> SquaredExcentricity [
-
-	^ ((WGS84 semiMajorAxisInMeters * WGS84 semiMajorAxisInMeters) -
-		(WGS84 semiMinorAxisInMeters * WGS84 semiMinorAxisInMeters)) /
-		(WGS84 semiMajorAxisInMeters * WGS84 semiMajorAxisInMeters).
-]
-
-{ #category : #constants }
-GeodesicUtilities class >> SquaredReducedExcentricity [
-
-	^ ((WGS84 semiMajorAxisInMeters * WGS84 semiMajorAxisInMeters) -
-		(WGS84 semiMinorAxisInMeters * WGS84 semiMinorAxisInMeters)) /
-		(WGS84 semiMinorAxisInMeters * WGS84 semiMinorAxisInMeters).
+	^ self
+		  absoluteCoordinatesFrom: anAbsoluteCoordinates
+		  distance: (aDistanceInM / 1000 / 1.852)
+		  azimuthInRadians: anAzimuthInDegrees degreesToRadians
 ]
 
 { #category : #tools }
-GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distance: aDistanceInM azimuth: anAzimuthInDegrees [ 
-	"Formule de transformation tirée du livre de traité de navigation, c'est pourquoi elle fonctionne avec des NM"
-	| absoluteCoordinates distanceInNM deltaLat latArr div deltaLong longArr |
+GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distance: aDistanceInM azimuthInRadians: anAzimuthInRadians [
 
-	distanceInNM := aDistanceInM / 1000 / 1.852. "Convert km into nautic miles"
-	deltaLat := anAzimuthInDegrees degreesToRadians cos * distanceInNM / 60.0.
+	^ self
+		  absoluteCoordinatesFrom: anAbsoluteCoordinates
+		  distanceInNM: (aDistanceInM / 1000 / 1.852)
+		  azimuthInRadians: anAzimuthInRadians
+]
+
+{ #category : #tools }
+GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distanceInNM: aDistanceInNM azimuthInRadians: anAzimuthInRadians [ 
+	"Formule de transformation tirée du livre de traité de navigation, c'est pourquoi elle fonctionne avec des NM"
+	| absoluteCoordinates deltaLat latArr div deltaLong longArr |
+
+	deltaLat := anAzimuthInRadians cos * aDistanceInNM / 60.0.
 	latArr := anAbsoluteCoordinates latitudeInDegrees  + deltaLat.
 	
 	div := ((latArr + anAbsoluteCoordinates latitudeInDegrees) degreesToRadians / 2.0) cos.
 	deltaLong := ((div = 0)
-		ifFalse:[(anAzimuthInDegrees degreesToRadians sin / (div) abs * distanceInNM / 60.0)] 
+		ifFalse:[(anAzimuthInRadians sin / (div) abs * aDistanceInNM / 60.0)] 
 		ifTrue:[0]).
 
 	longArr := anAbsoluteCoordinates longitudeInDegrees + deltaLong.	
@@ -54,7 +53,7 @@ GeodesicUtilities class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distan
 	(absoluteCoordinates longitudeInDegrees < -360 or:[absoluteCoordinates longitudeInDegrees > 360]) ifTrue:[^AbsoluteCoordinates zero].
 	(absoluteCoordinates latitudeInDegrees < -360 or:[absoluteCoordinates latitudeInDegrees > 360]) ifTrue:[^AbsoluteCoordinates zero].
 
-	^absoluteCoordinates
+	^ absoluteCoordinates
 ]
 
 { #category : #tools }
@@ -76,10 +75,17 @@ GeodesicUtilities class >> checkAngle: anAngleInRad isBetween: aStartValueInRad 
 	^middle <= end
 ]
 
+{ #category : #cleanup }
+GeodesicUtilities class >> cleanUp [
+
+	poleCurveRadius := nil.
+	squaredExcentricity := nil.
+	squaredReducedExcentricity := nil
+]
+
 { #category : #private }
 GeodesicUtilities class >> computeECEFXYZ: anOriginAbsoluteCoordinates fromLocalXYZ: aLocalCartesianCoordinates [
 
-	<tacplot60>
 	| xor yor zor lon lat slon slat clon clat clonclat clonslat slonslat slonclat ECEFXYZOrigin |
 	ECEFXYZOrigin := self computeECEFXYZFromLgLatAlt: anOriginAbsoluteCoordinates.
 	
@@ -117,7 +123,6 @@ GeodesicUtilities class >> computeECEFXYZ: anOriginAbsoluteCoordinates fromLocal
 { #category : #private }
 GeodesicUtilities class >> computeECEFXYZFromLgLatAlt: anAbsoluteCoordinates [
 
-	<tacplot60>
 	| coslat coslat2 sinlat sinlon coslon h V N |
 	
 	coslat := anAbsoluteCoordinates latitudeInRadians cos.
@@ -127,19 +132,18 @@ GeodesicUtilities class >> computeECEFXYZFromLgLatAlt: anAbsoluteCoordinates [
 	coslon := anAbsoluteCoordinates longitudeInRadians cos.
 	h := anAbsoluteCoordinates altitudeInMeters.
 	
-	V := ((self SquaredReducedExcentricity * coslat) + 1) sqrt.
-	N := self PoleCurveRadius / V.
+	V := ((self squaredReducedExcentricity * coslat) + 1) sqrt.
+	N := self poleCurveRadius / V.
 	
 	^ CartesianCoordinates 
 		xInMeters: (N + h) * coslat * coslon
 		yInMeters: (N + h) * coslat * sinlon
-		zInMeters: ((N * (1 - self SquaredExcentricity)) + h) * sinlat
+		zInMeters: ((N * (1 - self squaredExcentricity)) + h) * sinlat
 ]
 
 { #category : #private }
 GeodesicUtilities class >> computeLgLatAltFromECEFXYZ: aCartesianCoordinates [
 
-	<tacplot60>
 	| z x2 y2 d2 dh lat coslat V N absoluteCoordinates |
 	
 	absoluteCoordinates := AbsoluteCoordinates new.
@@ -154,9 +158,9 @@ GeodesicUtilities class >> computeLgLatAltFromECEFXYZ: aCartesianCoordinates [
 	1 to: 4 do: [ :i |
 		lat := (z @ dh) theta.
 		coslat := lat cos.
-		V := ((self SquaredReducedExcentricity * coslat * coslat) + 1) sqrt.
-		N := self PoleCurveRadius / V.
-		z := aCartesianCoordinates zInMeters + (N * self SquaredExcentricity * lat sin) ].
+		V := ((self squaredReducedExcentricity * coslat * coslat) + 1) sqrt.
+		N := self poleCurveRadius / V.
+		z := aCartesianCoordinates zInMeters + (N * self squaredExcentricity * lat sin) ].
 	
 	absoluteCoordinates latitudeInRadians: (z @ dh) theta.
 	absoluteCoordinates altitudeInMeters: (d2 + (z * z) - N) sqrt.	
@@ -166,7 +170,7 @@ GeodesicUtilities class >> computeLgLatAltFromECEFXYZ: aCartesianCoordinates [
 { #category : #converting }
 GeodesicUtilities class >> convertGeodesicToAzimuthInRadiansFrom: startAbsoluteCoordinate to: endAbsoluteCoordinate [
 	"Compute azimut between two Geodesic (lat/long) coordinates and return azimuth in radians"
-	<tacplot60>
+
 	| d5 d6 d7 d8 d9 d10 d11 d12 d14 d13 d15 d16 d17 d19 d20 d21 d22 d23 d24 d25 d26 d27 d28 break |
 	
 	(startAbsoluteCoordinate longitudeInRadians closeTo: endAbsoluteCoordinate longitudeInRadians precision: 1e-7) ifTrue: 
@@ -224,7 +228,7 @@ GeodesicUtilities class >> convertGeodesicToAzimuthInRadiansFrom: startAbsoluteC
 { #category : #converting }
 GeodesicUtilities class >> convertGeodesicToDistanceInMeterFrom: startAbsoluteCoordinate to: endAbsoluteCoordinate [
 	"Compute distance between two Geodesic (lat/long) coordinates and return in meter"
-	<tacplot60>
+
 	| d5 d6 d7 d8 d9 d10 d11 d12 d14 d15 d16 d17 d18 d19 d20 d21 d22 d23 d24 d25 d26 d27 d28 d29 d30 d31 d32 xxx l |
 
 	(startAbsoluteCoordinate longitudeInRadians closeTo: endAbsoluteCoordinate longitudeInRadians precision: 1e-7) ifTrue: 
@@ -281,6 +285,15 @@ GeodesicUtilities class >> convertGeodesicToDistanceInMeterFrom: startAbsoluteCo
 { #category : #tools }
 GeodesicUtilities class >> isAzimuthTowardsAreaFrom: anAbsCoordOrigin azimuth: anAzimuthInDegree area: aListOfAbsoluteCoords [
 
+	^ self
+		  isAzimuthTowardsAreaFrom: anAbsCoordOrigin
+		  azimuthInRadians: anAzimuthInDegree degreesToRadians
+		  area: aListOfAbsoluteCoords
+]
+
+{ #category : #tools }
+GeodesicUtilities class >> isAzimuthTowardsAreaFrom: anAbsCoordOrigin azimuthInRadians: anAzimuthInRadians area: aListOfAbsoluteCoords [
+
 	| listAngles isPointingArea azRad |
 	isPointingArea := false.
 
@@ -291,7 +304,7 @@ GeodesicUtilities class >> isAzimuthTowardsAreaFrom: anAbsCoordOrigin azimuth: a
 		               self convertGeodesicToAzimuthInRadiansFrom: anAbsCoordOrigin to: absCoord ]) asOrderedCollection.
 	listAngles add: listAngles first.
 
-	azRad := anAzimuthInDegree degreesToRadians.
+	azRad := anAzimuthInRadians.
 
 	isPointingArea := false.
 	listAngles withIndexDo: [ :a :i |
@@ -318,7 +331,7 @@ GeodesicUtilities class >> localPolar: aPolarCoordinates toGeodesicFrom: anOrigi
 	"Compute the geodesic position of a specified line end, knowing its azimuth, elevation, length and start geodesic position. Warning: that method doesn't take in account the earth curve as orthodromic2geodesic does.
  But that method takes in account the altitude in the calculus."
 	"Return an AbsoluteCoordinates"
-	<tacplot60>
+
 	| cartesianCoordinates geocentric |
 	cartesianCoordinates := aPolarCoordinates asCartesianCoordinates.
 	geocentric := self computeECEFXYZ: anOriginAbsoluteCoordinates fromLocalXYZ: cartesianCoordinates.
@@ -326,11 +339,21 @@ GeodesicUtilities class >> localPolar: aPolarCoordinates toGeodesicFrom: anOrigi
 	
 ]
 
+{ #category : #constants }
+GeodesicUtilities class >> poleCurveRadius [
+
+	poleCurveRadius ifNil: [
+		poleCurveRadius := WGS84 semiMajorAxisInMeters
+		                   * WGS84 semiMajorAxisInMeters
+		                   / WGS84 semiMinorAxisInMeters ].
+
+	^ poleCurveRadius
+]
+
 { #category : #converting }
 GeodesicUtilities class >> preciseConvertGeodesicToAzimuthInRadiansFrom: startAbsoluteCoordinate to: endAbsoluteCoordinate [
 	"Compute azimut between two Geodesic (lat/long) coordinates and return azimuth in radians"
 
-	<tacplot60>
 	| d5 d6 d7 d8 d9 d10 d11 d12 d14 d13 d15 d16 d17 d19 d20 d21 d22 d23 d24 d25 d26 d27 d28 break |
 	
 	d5 := (startAbsoluteCoordinate latitudeInRadians tan
@@ -393,4 +416,36 @@ GeodesicUtilities class >> projectedRadiusInMCenter: anAbsoluteCoordinates radiu
 
 	radiusInM := (cartesianCoordinates1 asPoint - cartesianCoordinates2 asPoint) r abs.
 	^ radiusInM
+]
+
+{ #category : #constants }
+GeodesicUtilities class >> squaredExcentricity [
+
+	squaredExcentricity ifNil: [
+		squaredExcentricity := WGS84 semiMajorAxisInMeters
+		                       * WGS84 semiMajorAxisInMeters
+		                       -
+		                       (WGS84 semiMinorAxisInMeters
+		                        * WGS84 semiMinorAxisInMeters)
+		                       /
+		                       (WGS84 semiMajorAxisInMeters
+		                        * WGS84 semiMajorAxisInMeters) ].
+
+	^ squaredExcentricity
+]
+
+{ #category : #constants }
+GeodesicUtilities class >> squaredReducedExcentricity [
+
+	squaredReducedExcentricity ifNil: [
+		squaredReducedExcentricity := WGS84 semiMajorAxisInMeters
+		                              * WGS84 semiMajorAxisInMeters
+		                              -
+		                              (WGS84 semiMinorAxisInMeters
+		                               * WGS84 semiMinorAxisInMeters)
+		                              /
+		                              (WGS84 semiMinorAxisInMeters
+		                               * WGS84 semiMinorAxisInMeters) ].
+
+	^ squaredReducedExcentricity
 ]
