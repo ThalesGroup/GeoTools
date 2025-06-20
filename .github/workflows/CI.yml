@@ -5,12 +5,12 @@ env:
 
 on:
   pull_request: #necessary to display "check" step in a PR
-    type: [labeled]
+    types: [labeled]
   workflow_dispatch: #manual trigger
 
 jobs:
   tests:
-    if: github.event.label.name == 'run-ci'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.label.name == 'run-ci')
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
