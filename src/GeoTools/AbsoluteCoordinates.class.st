@@ -12,7 +12,7 @@ Class {
 	#category : #'GeoTools-Coordinates'
 }
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> ausSydney [
 
 	^ AbsoluteCoordinates 
@@ -73,7 +73,7 @@ AbsoluteCoordinates class >> createFromLatString: latitudeString lonString: long
 	^self new latitudeInDegrees: _lat; longitudeInDegrees: _lon; yourself.
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frBordeaux [
 
 	^ AbsoluteCoordinates 
@@ -82,7 +82,7 @@ AbsoluteCoordinates class >> frBordeaux [
 		altitudeInMeters: 22
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frBrest [
 
 	^ AbsoluteCoordinates 
@@ -91,7 +91,7 @@ AbsoluteCoordinates class >> frBrest [
 		altitudeInMeters: 52
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frElancourt [
 
 	^ AbsoluteCoordinates 
@@ -100,7 +100,7 @@ AbsoluteCoordinates class >> frElancourt [
 		altitudeInMeters: 138 
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frLyon [
 
 	^ AbsoluteCoordinates 
@@ -109,7 +109,7 @@ AbsoluteCoordinates class >> frLyon [
 		altitudeInMeters: 237 
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frMarseille [
 
 	^ AbsoluteCoordinates 
@@ -118,7 +118,7 @@ AbsoluteCoordinates class >> frMarseille [
 		altitudeInMeters: 320
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frNevers [
 
 	^ AbsoluteCoordinates 
@@ -127,7 +127,7 @@ AbsoluteCoordinates class >> frNevers [
 		altitudeInMeters: 203 
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frParis [
 
 	^ AbsoluteCoordinates 
@@ -136,7 +136,7 @@ AbsoluteCoordinates class >> frParis [
 		altitudeInMeters: 79 
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frStRenan [
 
 	^ AbsoluteCoordinates 
@@ -412,7 +412,7 @@ AbsoluteCoordinates class >> readSpacedDMSString: aString [
 	^ d * sign asFloat
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> usaLosAngeles [
 
 	^ AbsoluteCoordinates 
@@ -421,7 +421,7 @@ AbsoluteCoordinates class >> usaLosAngeles [
 		altitudeInMeters: 96
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> usaNewYork [
 
 	^ AbsoluteCoordinates 
@@ -430,7 +430,7 @@ AbsoluteCoordinates class >> usaNewYork [
 		altitudeInMeters: 57 
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> usaSeattle [
 
 	^ AbsoluteCoordinates 

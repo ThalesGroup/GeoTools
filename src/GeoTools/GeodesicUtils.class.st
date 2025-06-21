@@ -12,6 +12,25 @@ Class {
 }
 
 { #category : #tools }
+GeodesicUtils class >> absoluteCoordinatesAlongGeodesicFrom: from to: to atFraction: t [
+	"Return a point at fraction t (0 <= t <= 1) along the geodesic from 'from' to 'to'.
+	Uses Vincenty inverse to get initial azimuth and distance, then Vincenty direct."
+
+	| distance azimuth |
+	(from isValid and: [to isValid]) ifFalse: [ ^ nil ].
+	(t >= 1.0) ifTrue: [ ^ to copy ].
+	(t <= 0.0) ifTrue: [ ^ from copy ].
+
+	distance := self distanceInMetersFrom: from to: to.
+	azimuth := self azimuthInRadiansFrom: from to: to.
+
+	^ self
+		absoluteCoordinatesWithVincentyFrom: from
+		distanceInM: (distance * t)
+		azimuthInRadians: azimuth
+]
+
+{ #category : #tools }
 GeodesicUtils class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distance: aDistanceInM azimuth: anAzimuthInDegrees [
 
 	self
@@ -324,7 +343,7 @@ GeodesicUtils class >> azimuthInRadiansWithVincentyFrom: startAbsoluteCoordinate
 	d28 := 0.
 	break := false.
 	
-	[ d28 < 4 and: [ break not ] ] whileTrue: 
+	[ d28 < 100 and: [ break not ] ] whileTrue: 
 		[ d16 := d8 * d14.
 		d17 := (d7 * d10) - (d9 * d8 * d15).
 		d20 := ((d16 * d16) + (d17 * d17)) sqrt.
@@ -382,7 +401,7 @@ GeodesicUtils class >> azimuthInRadiansWithVincentyPreciseFrom: startAbsoluteCoo
 	d28 := 0.
 	break := false.
 
-	[ d28 < 4 and: [ break not ] ] whileTrue: [
+	[ d28 < 100 and: [ break not ] ] whileTrue: [
 		d16 := d8 * d14.
 		d17 := d7 * d10 - (d9 * d8 * d15).
 		d20 := (d16 * d16 + (d17 * d17)) sqrt.
