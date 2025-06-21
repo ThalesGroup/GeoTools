@@ -41,29 +41,9 @@ GeodesicUtils class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distance: 
 
 { #category : #tools }
 GeodesicUtils class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distanceInM: aDistanceInM azimuthInRadians: anAzimuthInRadians [
-	"Approximates a geographic position (latitude, longitude) from a starting point, a distance (in meters), and an azimuth (in radians), assuming a spherical Earth with radius equal to the WGS84 semi-major axis."
 
-	| r δ φ1 λ1 φ2 λ2 x y |
-	anAbsoluteCoordinates isValid ifFalse:[ ^ nil ].
-	
-	r := WGS84 semiMajorAxisInMeters.
-	δ := aDistanceInM / r.
-
-	φ1 := anAbsoluteCoordinates latitudeInRadians.
-	λ1 := anAbsoluteCoordinates longitudeInRadians.
-
-	φ2 := (φ1 sin * δ cos + (φ1 cos * δ sin * anAzimuthInRadians cos)) arcSin.
-	φ2 := (φ2 max: (Float halfPi negated)) min: Float halfPi.
-
-	x := δ cos - (φ1 sin * φ2 sin).
-	y := anAzimuthInRadians sin * δ * φ1 cos.
-
-	λ2 := λ1 + (y arcTan: x).
-
-	^ AbsoluteCoordinates
-		  latitudeInDegrees: φ2 radiansToDegrees
-		  longitudeInDegrees: λ2 radiansToDegrees
-		  altitudeInMeters: anAbsoluteCoordinates altitudeInMeters
+	"default using Vincenty"
+	^ self absoluteCoordinatesWithVincentyFrom: anAbsoluteCoordinates distanceInM: aDistanceInM azimuthInRadians: anAzimuthInRadians
 ]
 
 { #category : #tools }
@@ -78,6 +58,65 @@ GeodesicUtils class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distanceIn
 		  approximateAbsoluteCoordinatesFrom: anAbsoluteCoordinates
 		  distanceInNM: aDistanceInNM
 		  azimuthInRadians: anAzimuthInRadians
+]
+
+{ #category : #'private - calculating' }
+GeodesicUtils class >> absoluteCoordinatesWithVincentyFrom: anAbsoluteCoordinates distanceInM: distance azimuthInRadians: azimuth [
+	"https://en.wikipedia.org/wiki/Vincenty%27s_formulae"
+
+    | a f b lat1 lon1 alpha1 sinAlpha1 cosAlpha1 u1 sinU1 cosU1 sigma1 sinα cosSqAlpha uSq A B σ σPrev iterLimit cosσ sinσ lat2 Δσ C L lon2 lambda cos2σm tmp |
+	 a := WGS84 semiMajorAxisInMeters.
+    f := WGS84 flattening.
+    b := a * (1 - f).
+ 
+    lat1 := anAbsoluteCoordinates latitudeInRadians.
+    lon1 := anAbsoluteCoordinates longitudeInRadians.
+	 alpha1 := azimuth.
+    sinAlpha1 := alpha1 sin. 
+    cosAlpha1 := alpha1 cos. 
+
+	 u1 := ((1 - f) * ((lat1) tan)) arcTan.
+    sinU1 := u1 sin.
+    cosU1 := u1 cos.
+
+	 sigma1 := sinU1 arcTan: (cosU1 * cosAlpha1). 
+    sinα := cosU1 * sinAlpha1.
+    cosSqAlpha := 1 - (sinα squared).
+
+	 uSq := (cosSqAlpha * ((a squared) - (b squared))) / (b squared).
+    A := 1 + ((uSq / 16384) * (4096 + (uSq * (-768 + (uSq * (320 - (175 * uSq))))))).
+    B := (uSq / 1024) * (256 + (uSq * (-128 + (uSq * (74 - (47 * uSq)))))).
+
+	 σ := distance / (b * A).
+    σPrev := 0.0.
+    iterLimit := 100.
+
+	"Itération pour converger sur σ"
+	[ (σ - σPrev) abs > 1e-12 and: [ iterLimit > 0 ] ] whileTrue: [
+		cos2σm := ((2 * sigma1) + σ) cos.
+      sinσ := σ sin.
+      cosσ := σ cos.
+	
+		Δσ := (B * sinσ) * (
+    		(cos2σm) + (((B) / 4) * (
+        		((cosσ) * (-1 + (2 * ((cos2σm) squared)))) -
+        		((((B) / 6) * (cos2σm)) * (-3 + (4 * ((sinσ) squared))) * (-3 + (4 * ((cos2σm) squared))))
+   			))
+		).
+ 
+		σPrev := σ.
+      σ := (distance / (b * A)) + Δσ.
+      iterLimit := iterLimit - 1.
+	].
+
+	tmp := (sinU1 * sinσ) - (cosU1 * cosσ * cosAlpha1).
+	lat2 := ((sinU1 * cosσ) + (cosU1 * sinσ * cosAlpha1)) arcTan: ((1 - f) * ((sinAlpha1 squared) + (tmp * tmp)) sqrt).
+	lambda := (sinσ * sinAlpha1) arcTan: ((cosU1 * cosσ) - (sinU1 * sinσ * cosAlpha1)).
+	C := (f / 16) * cosSqAlpha * (4 + (f * (4 - (3 * cosSqAlpha)))).
+	L := lambda - ((1 - C) * f * sinAlpha1 * (σ + (C * sinσ * (cos2σm + (C * cosσ * (-1 + (2 * (cos2σm squared)))))))).
+	lon2 := (((lon1 + L + (3 * Float pi)) \\ (2 * Float pi)) - Float pi).
+
+    ^ AbsoluteCoordinates latitudeInRadians: lat2 longitudeInRadians: lon2
 ]
 
 { #category : #'tools - approximation' }
@@ -96,6 +135,34 @@ GeodesicUtils class >> approximateAbsoluteCoordinatesFrom: anAbsoluteCoordinates
 		  approximateAbsoluteCoordinatesFrom: anAbsoluteCoordinates
 		  distanceInNM: (aDistanceInM / 1000 / 1.852)
 		  azimuthInRadians: anAzimuthInRadians
+]
+
+{ #category : #'tools - approximation' }
+GeodesicUtils class >> approximateAbsoluteCoordinatesFrom: anAbsoluteCoordinates distanceInM: aDistanceInM azimuthInRadians: anAzimuthInRadians [
+	"Approximates a geographic position (latitude, longitude) from a starting point, a distance (in meters), and an azimuth (in radians), assuming a spherical Earth with radius equal to the WGS84 semi-major axis."
+
+	| r δ φ1 λ1 φ2 λ2 x y |
+	anAbsoluteCoordinates isValid ifFalse:[ ^ nil ].
+	
+	r := WGS84 semiMajorAxisInMeters.
+	δ := aDistanceInM / r.
+
+	φ1 := anAbsoluteCoordinates latitudeInRadians.
+	λ1 := anAbsoluteCoordinates longitudeInRadians.
+
+	φ2 := (φ1 sin * δ cos + (φ1 cos * δ sin * anAzimuthInRadians cos)) arcSin.
+	φ2 := (φ2 max: (Float halfPi negated)) min: Float halfPi.
+
+	x := δ cos - (φ1 sin * φ2 sin).
+	y := anAzimuthInRadians sin * δ * φ1 cos.
+
+	λ2 := λ1 + (y arcTan: x).
+	λ2 := ((λ2 + Float pi) \\ (2 * Float pi)) - Float pi.
+
+	^ AbsoluteCoordinates
+		  latitudeInDegrees: φ2 radiansToDegrees
+		  longitudeInDegrees: λ2 radiansToDegrees
+		  altitudeInMeters: anAbsoluteCoordinates altitudeInMeters
 ]
 
 { #category : #'tools - approximation' }

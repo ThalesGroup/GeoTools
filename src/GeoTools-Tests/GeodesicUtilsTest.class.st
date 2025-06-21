@@ -112,6 +112,65 @@ GeodesicUtilsTest >> testAbsoluteCoordinatesFromDistanceInMAzimuthInRadiansWest 
 ]
 
 { #category : #tests }
+GeodesicUtilsTest >> testAbsoluteCoordinatesWithVincentyFromDistanceInMAzimuthInRadians [
+	"Déplacement vers l’Est sur 1000 m depuis l’équateur (0°, 0°) à azimut 90°"
+	
+    | start azimuth distanceInM coord |
+    
+    start := AbsoluteCoordinates zero.
+    azimuth := 90 degreesToRadians.
+    distanceInM := 1000.
+
+    coord := GeodesicUtils absoluteCoordinatesWithVincentyFrom: start distanceInM: distanceInM azimuthInRadians: azimuth.
+    self assert: (coord latitudeInDegrees closeTo: 0).
+    self assert: (coord longitudeInDegrees closeTo: 0.009013373 precision: 0.0001)
+]
+
+{ #category : #tests }
+GeodesicUtilsTest >> testAbsoluteCoordinatesWithVincentyFromDistanceInMAzimuthInRadians2 [
+	"Déplacement vers le Nord sur 1000 m depuis l’équateur (0°, 0°) à azimut 0°"
+    | start azimuth distanceInM coord |
+    
+	start := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0.
+   azimuth := 0 degreesToRadians.
+   distanceInM := 1000.
+
+   coord := GeodesicUtils absoluteCoordinatesWithVincentyFrom: start distanceInM: distanceInM azimuthInRadians: azimuth.
+   self assert: (coord latitudeInDegrees closeTo: 0.008993216 precision: 1e-3).
+   self assert: (coord longitudeInDegrees closeTo: 0.0). 
+]
+
+{ #category : #tests }
+GeodesicUtilsTest >> testAbsoluteCoordinatesWithVincentyFromDistanceInMAzimuthInRadians3 [
+    "Déplacement vers l’Est sur 1000 m depuis l’équateur (0°, 0°) à azimut 90°"
+    | start azimuth distanceInM coord |
+
+    start := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0.
+    azimuth := 90 degreesToRadians.
+    distanceInM := 1000.
+
+    coord := GeodesicUtils absoluteCoordinatesWithVincentyFrom: start distanceInM: distanceInM azimuthInRadians: azimuth.
+    self assert: (coord latitudeInDegrees closeTo: 0.0 precision: 1e-3).
+    self assert: (coord longitudeInDegrees closeTo: 0.008993 precision: 1e-3).
+
+]
+
+{ #category : #tests }
+GeodesicUtilsTest >> testAbsoluteCoordinatesWithVincentyFromDistanceInMAzimuthInRadians4 [
+    "Déplacement vers le Sud sur 1000 m depuis l’équateur (0°, 0°) à azimut 180°"
+    | start azimuth distanceInM coord |
+
+    start := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0.
+    azimuth := 180 degreesToRadians.
+    distanceInM := 1000.
+
+    coord := GeodesicUtils absoluteCoordinatesWithVincentyFrom: start distanceInM: distanceInM azimuthInRadians: azimuth.
+    self assert: (coord latitudeInDegrees closeTo: (-0.008993) precision: 1e-3).
+    self assert: (coord longitudeInDegrees closeTo: 0.0 precision: 1e-3).
+
+]
+
+{ #category : #tests }
 GeodesicUtilsTest >> testAzimuthInRadiansFromTo [
 
 	| from to angleInRadians |
