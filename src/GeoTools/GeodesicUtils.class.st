@@ -209,7 +209,7 @@ GeodesicUtils class >> azimuthInRadiansFrom: startAbsoluteCoordinate to: endAbso
 
 	^ self
 		  azimuthInRadiansWithVincentyFrom: startAbsoluteCoordinate
-		  to: endAbsoluteCoordinate
+		  to: endAbsoluteCoordinate 
 ]
 
 { #category : #'private - calculating' }
