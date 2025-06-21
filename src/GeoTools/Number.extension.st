@@ -1,6 +1,24 @@
 Extension { #name : #Number }
 
 { #category : #'*GeoTools' }
+Number >> arcTan2: x [
+    "Calcule atan2(self, x) en radians"
+    | angle |
+    (self = 0 and: [x = 0])
+        ifTrue: [^ 0].  "Indéfini, on choisit 0"
+    (x = 0)
+        ifTrue: [^ self > 0
+                ifTrue: [Float pi / 2]
+                ifFalse: [Float pi / -2]].
+    angle := (self / x) arcTan.
+    (x > 0)
+        ifTrue: [^ angle].
+    (self >= 0)
+        ifTrue: [^ angle + Float pi].
+    ^ angle - Float pi.
+]
+
+{ #category : #'*GeoTools' }
 Number >> asAzimuthAngle [
 
 	^ 90 - self \\ 360
@@ -10,6 +28,17 @@ Number >> asAzimuthAngle [
 Number >> asTrigonometricAngle [
 
 	^ self + 270 \\ 360
+]
+
+{ #category : #'*GeoTools' }
+Number >> euclideanModulo: aNumber [
+	"Retourne le modulo euclidien de self par aNumber, toujours positif entre 0 et aNumber."
+
+	| r |
+	r := self \\ aNumber. "Reste natif Smalltalk, peut être négatif"
+	^ r < 0
+		  ifTrue: [ r + aNumber ]
+		  ifFalse: [ r ]
 ]
 
 { #category : #'*GeoTools' }

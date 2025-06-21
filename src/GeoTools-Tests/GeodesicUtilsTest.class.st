@@ -171,6 +171,25 @@ GeodesicUtilsTest >> testAbsoluteCoordinatesWithVincentyFromDistanceInMAzimuthIn
 ]
 
 { #category : #tests }
+GeodesicUtilsTest >> testAbsoluteCoordinatesWithVincentyFromDistanceInMAzimuthInRadians5 [
+    "Test d'un déplacement connu depuis Paris vers l'Est sur 1 km à azimut 90°"
+
+    | start azimuth distance coord expectedLat expectedLon delta |
+    start := AbsoluteCoordinates frParis.
+    azimuth := 90 degreesToRadians.
+    distance := 1000.
+
+    coord := GeodesicUtils absoluteCoordinatesWithVincentyFrom: start distanceInM: distance azimuthInRadians: azimuth.
+
+    expectedLat := 48.86.
+    expectedLon := 2.34.
+    delta := 1e-2.
+
+    self assert: (coord latitudeInDegrees between: expectedLat - delta and: expectedLat + delta).
+    self assert: (coord longitudeInDegrees between: expectedLon - delta and: expectedLon + delta).
+]
+
+{ #category : #tests }
 GeodesicUtilsTest >> testAzimuthInRadiansFromTo [
 
 	| from to angleInRadians |

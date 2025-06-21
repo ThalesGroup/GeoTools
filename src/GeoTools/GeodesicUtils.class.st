@@ -62,9 +62,91 @@ GeodesicUtils class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distanceIn
 
 { #category : #'private - calculating' }
 GeodesicUtils class >> absoluteCoordinatesWithVincentyFrom: anAbsoluteCoordinates distanceInM: distance azimuthInRadians: azimuth [
+    | a f b lat1 lon1 alpha1 sinAlpha1 cosAlpha1 u1 sinU1 cosU1 sigma1 sinAlpha cosSqAlpha uSq A B sigma sigmaPrev iterLimit cosSigma sinSigma lat2 deltaSigma C L lon2 lambda cos2SigmaM tmp |
+
+    anAbsoluteCoordinates isValid ifFalse: [ ^ nil ].
+    distance = 0 ifTrue: [ ^ anAbsoluteCoordinates copy ].
+
+    a := WGS84 semiMajorAxisInMeters.
+    f := WGS84 flattening.
+    b := a * (1 - f).
+
+    lat1 := anAbsoluteCoordinates latitudeInRadians.
+    lon1 := anAbsoluteCoordinates longitudeInRadians.
+    alpha1 := azimuth.
+    sinAlpha1 := alpha1 sin.
+    cosAlpha1 := alpha1 cos.
+
+    "Calcul latitude réduite U1"
+    u1 := ((1 - f) * (lat1 tan)) arcTan.
+    sinU1 := u1 sin.
+    cosU1 := u1 cos.
+
+    Transcript
+        show: 'u1 (rad): ', u1 printString; cr;
+        show: 'sinU1: ', sinU1 printString; cr;
+        show: 'cosU1: ', cosU1 printString; cr.
+
+    "sigma1"
+    sigma1 := ((u1 tan) / cosAlpha1) arcTan.  "arcTan au lieu de arcTan2"
+    Transcript
+        show: 'sigma1 (rad): ', sigma1 printString; cr.
+
+    sinAlpha := cosU1 * sinAlpha1.
+    cosSqAlpha := 1 - (sinAlpha squared).
+
+    uSq := (cosSqAlpha * ((a squared) - (b squared))) / (b squared).
+    A := 1 + ((uSq / 16384) * (4096 + (uSq * (-768 + (uSq * (320 - (175 * uSq))))))).
+    B := (uSq / 1024) * (256 + (uSq * (-128 + (uSq * (74 - (47 * uSq)))))).
+
+    sigma := distance / (b * A).
+    sigmaPrev := 0.0.
+    iterLimit := 100.
+
+    [ ((sigma - sigmaPrev) abs > 1e-12) and: [ iterLimit > 0 ] ] whileTrue: [
+        cos2SigmaM := ((2 * sigma1) + sigma) cos.
+        sinSigma := sigma sin.
+        cosSigma := sigma cos.
+
+        deltaSigma := (B * sinSigma) * (
+            (cos2SigmaM) + (((B) / 4) * (
+                ((cosSigma) * (-1 + (2 * ((cos2SigmaM) squared)))) -
+                ((((B) / 6) * (cos2SigmaM)) * (-3 + (4 * ((sinSigma) squared))) * (-3 + (4 * ((cos2SigmaM) squared))))
+            ))
+        ).
+
+        sigmaPrev := sigma.
+        sigma := (distance / (b * A)) + deltaSigma.
+        iterLimit := iterLimit - 1.
+
+        Transcript
+            show: 'sigma: ', sigma printString; cr.
+    ].
+
+    tmp := ((sinU1 * sinSigma) - (cosU1 * cosSigma * cosAlpha1)).
+    lat2 := ((sinU1 * cosSigma) + (cosU1 * sinSigma * cosAlpha1)) arcTan2: ((1 - f) * (((sinAlpha squared) + (tmp * tmp)) sqrt)).
+    lambda := (sinSigma * sinAlpha1) arcTan2: ((cosU1 * cosSigma) - (sinU1 * sinSigma * cosAlpha1)).
+    C := ((f / 16) * cosSqAlpha * (4 + (f * (4 - (3 * cosSqAlpha))))).
+    L := lambda - ((1 - C) * f * sinAlpha1 * (sigma + (C * sinSigma * (cos2SigmaM + (C * cosSigma * (-1 + (2 * ((cos2SigmaM) squared)))))))).
+    lon2 := (((lon1 + L + (3 * Float pi)) euclideanModulo: (2 * Float pi)) - Float pi).
+
+    Transcript
+        show: 'lat2 (rad): ', lat2 printString; cr;
+        show: 'lon2 (rad): ', lon2 printString; cr.
+
+    ^ AbsoluteCoordinates latitudeInRadians: lat2 longitudeInRadians: lon2
+
+
+]
+
+{ #category : #'private - calculating' }
+GeodesicUtils class >> absoluteCoordinatesWithVincentyFromOld: anAbsoluteCoordinates distanceInM: distance azimuthInRadians: azimuth [
 	"https://en.wikipedia.org/wiki/Vincenty%27s_formulae"
 
-    | a f b lat1 lon1 alpha1 sinAlpha1 cosAlpha1 u1 sinU1 cosU1 sigma1 sinα cosSqAlpha uSq A B σ σPrev iterLimit cosσ sinσ lat2 Δσ C L lon2 lambda cos2σm tmp |
+    | a f b lat1 lon1 alpha1 sinAlpha1 cosAlpha1 u1 sinU1 cosU1 sigma1 sinα cosSqAlpha uSq A B sigma σPrev iterLimit cosσ sinσ lat2 Δσ C L lon2 lambda cos2σm tmp |
+	 
+	 anAbsoluteCoordinates isValid ifFalse:[ ^ nil ].
+	 distance = 0 ifTrue:[ ^ anAbsoluteCoordinates copy ].
 	 a := WGS84 semiMajorAxisInMeters.
     f := WGS84 flattening.
     b := a * (1 - f).
@@ -75,11 +157,11 @@ GeodesicUtils class >> absoluteCoordinatesWithVincentyFrom: anAbsoluteCoordinate
     sinAlpha1 := alpha1 sin. 
     cosAlpha1 := alpha1 cos. 
 
-	 u1 := ((1 - f) * ((lat1) tan)) arcTan.
+	 u1 := ((1 - f) * ((lat1) sin)) arcTan: (lat1 cos).
     sinU1 := u1 sin.
     cosU1 := u1 cos.
 
-	 sigma1 := sinU1 arcTan: (cosU1 * cosAlpha1). 
+	 sigma1 := sinU1 arcTan: (cosU1 * cosAlpha1).
     sinα := cosU1 * sinAlpha1.
     cosSqAlpha := 1 - (sinα squared).
 
@@ -87,15 +169,15 @@ GeodesicUtils class >> absoluteCoordinatesWithVincentyFrom: anAbsoluteCoordinate
     A := 1 + ((uSq / 16384) * (4096 + (uSq * (-768 + (uSq * (320 - (175 * uSq))))))).
     B := (uSq / 1024) * (256 + (uSq * (-128 + (uSq * (74 - (47 * uSq)))))).
 
-	 σ := distance / (b * A).
+	 sigma := distance / (b * A).
     σPrev := 0.0.
     iterLimit := 100.
 
 	"Itération pour converger sur σ"
-	[ (σ - σPrev) abs > 1e-12 and: [ iterLimit > 0 ] ] whileTrue: [
-		cos2σm := ((2 * sigma1) + σ) cos.
-      sinσ := σ sin.
-      cosσ := σ cos.
+	[ ((sigma - σPrev) abs > 1e-12) and: [ iterLimit > 0 ] ] whileTrue: [
+		cos2σm := ((2 * sigma1) + sigma) cos.
+      sinσ := sigma sin.
+      cosσ := sigma cos.
 	
 		Δσ := (B * sinσ) * (
     		(cos2σm) + (((B) / 4) * (
@@ -104,17 +186,17 @@ GeodesicUtils class >> absoluteCoordinatesWithVincentyFrom: anAbsoluteCoordinate
    			))
 		).
  
-		σPrev := σ.
-      σ := (distance / (b * A)) + Δσ.
+		σPrev := sigma.
+      sigma := (distance / (b * A)) + Δσ.
       iterLimit := iterLimit - 1.
 	].
 
 	tmp := (sinU1 * sinσ) - (cosU1 * cosσ * cosAlpha1).
-	lat2 := ((sinU1 * cosσ) + (cosU1 * sinσ * cosAlpha1)) arcTan: ((1 - f) * ((sinAlpha1 squared) + (tmp * tmp)) sqrt).
+	lat2 := ((sinU1 * cosσ) + (cosU1 * sinσ * cosAlpha1)) arcTan: ((1 - f) * ((sinAlpha1 squared) + (tmp squared)) sqrt).
 	lambda := (sinσ * sinAlpha1) arcTan: ((cosU1 * cosσ) - (sinU1 * sinσ * cosAlpha1)).
 	C := (f / 16) * cosSqAlpha * (4 + (f * (4 - (3 * cosSqAlpha)))).
-	L := lambda - ((1 - C) * f * sinAlpha1 * (σ + (C * sinσ * (cos2σm + (C * cosσ * (-1 + (2 * (cos2σm squared)))))))).
-	lon2 := (((lon1 + L + (3 * Float pi)) \\ (2 * Float pi)) - Float pi).
+	L := lambda - ((1 - C) * f * sinAlpha1 * (sigma + (C * sinσ * (cos2σm + (C * cosσ * (-1 + (2 * (cos2σm squared)))))))).
+	lon2 := (((lon1 + L + (3 * Float pi)) euclideanModulo: (2 * Float pi)) - Float pi).
 
     ^ AbsoluteCoordinates latitudeInRadians: lat2 longitudeInRadians: lon2
 ]

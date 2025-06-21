@@ -25,6 +25,36 @@ GeoToolsExtensionsTests >> testAsTrigonometricAngle [
 ]
 
 { #category : #tests }
+GeoToolsExtensionsTests >> testEuclideanModulo [
+
+	| result pi |
+	pi := Float pi.
+
+	"Test basique positif"
+	result := 5 euclideanModulo: 3.
+	self assert: result equals: 2.
+	result := -1 euclideanModulo: 3.
+	self assert: result equals: 2.
+	result := 0 euclideanModulo: 5.
+	self assert: result equals: 0.
+	result := 10 euclideanModulo: 5.
+	self assert: result equals: 0.
+	result := pi + (3 * pi) euclideanModulo: (2 * pi).
+	"On attend la valeur dans [0, 2pi["
+	self assert: (result >= 0 and: [ result < (2 * pi) ]).
+
+	"Test valeur négative proche de pi"
+	result := Float pi negated euclideanModulo: (2 * pi).
+	self assert: (result >= 0 and: [ result < (2 * pi) ]).
+
+	"Test négatif grand"
+	result := -5 euclideanModulo: 4.
+	self assert: result equals: 3.
+	result := 7 euclideanModulo: 4.
+	self assert: result equals: 3
+]
+
+{ #category : #tests }
 GeoToolsExtensionsTests >> testIsAngleInRadiansBetweenAnd [
 
 	| result |
