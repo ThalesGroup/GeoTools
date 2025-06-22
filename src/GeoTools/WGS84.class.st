@@ -1,54 +1,77 @@
 "
-I am World Geodetic System standard.
+World Geodetic System 1984
+References:
+https://en.wikipedia.org/wiki/World_Geodetic_System#WGS84
+https://fr.wikipedia.org/wiki/WGS_84
+
+
 "
 Class {
 	#name : #WGS84,
 	#superclass : #Object,
-	#category : #'GeoTools-MapProjection'
+	#classInstVars : [
+		'eccentricitySquared',
+		'flattening',
+		'poleCurveRadius'
+	],
+	#category : #'GeoTools-Geodesic'
 }
 
-{ #category : #'standard values' }
-WGS84 class >> eminorSquare [
+{ #category : #cleanup }
+WGS84 class >> cleanUp [
+	"clean cached properties"
 
-^ ((self semiMajorAxisInMeters * self semiMajorAxisInMeters) -  (self semiMinorAxisInMeters * self semiMinorAxisInMeters)) / ((self semiMinorAxisInMeters * self semiMinorAxisInMeters)).
+	flattening := nil.
+	poleCurveRadius := nil
 ]
 
-{ #category : #'standard values' }
+{ #category : #properties }
+WGS84 class >> eccentricitySquared [
+	"~0.0066943799901413165"
+
+	^ self semiMajorAxisInMeters squared
+	  - self semiMinorAxisInMeters squared
+	  / self semiMajorAxisInMeters squared
+]
+
+{ #category : #properties }
 WGS84 class >> flattening [
-	"https://en.wikipedia.org/wiki/World_Geodetic_System"
 
-	^ 1 / self inverseFlattening
+"	flattening ifNil: [ flattening := 1 / 298.257223563 ]."
+	^ 1 / 298.257223563
 ]
 
-{ #category : #'standard values' }
-WGS84 class >> inverseFlattening [
-	"https://en.wikipedia.org/wiki/World_Geodetic_System"
+{ #category : #properties }
+WGS84 class >> poleCurveRadius [
 
-	^ 298.257223563
+	poleCurveRadius ifNil: [
+		poleCurveRadius := self semiMajorAxisInMeters squared
+		                   / self semiMinorAxisInMeters ].
+
+	^ poleCurveRadius
 ]
 
-{ #category : #'standard values' }
-WGS84 class >> k0 [
+{ #category : #properties }
+WGS84 class >> secondEccentricitySquared [
+	"~0.006739496742333464"
 
-	^ 0.9996
+	^ self semiMajorAxisInMeters squared
+	  - self semiMinorAxisInMeters squared
+	  / self semiMinorAxisInMeters squared
 ]
 
-{ #category : #'standard values' }
-WGS84 class >> scaleFactor [
-
-	^ self k0
-]
-
-{ #category : #'standard values' }
+{ #category : #properties }
 WGS84 class >> semiMajorAxisInMeters [
-	"https://en.wikipedia.org/wiki/World_Geodetic_System"
 
 	^ 6378137.0
 ]
 
-{ #category : #'standard values' }
+{ #category : #properties }
 WGS84 class >> semiMinorAxisInMeters [
-	"https://en.wikipedia.org/wiki/World_Geodetic_System"
 
 	^ 6356752.314245
+]
+
+{ #category : #'see class side' }
+WGS84 >> seeClassSide [ 
 ]

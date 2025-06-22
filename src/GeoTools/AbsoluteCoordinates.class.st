@@ -12,7 +12,7 @@ Class {
 	#category : #'GeoTools-Coordinates'
 }
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> ausSydney [
 
 	^ AbsoluteCoordinates 
@@ -73,7 +73,7 @@ AbsoluteCoordinates class >> createFromLatString: latitudeString lonString: long
 	^self new latitudeInDegrees: _lat; longitudeInDegrees: _lon; yourself.
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frBordeaux [
 
 	^ AbsoluteCoordinates 
@@ -82,7 +82,7 @@ AbsoluteCoordinates class >> frBordeaux [
 		altitudeInMeters: 22
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frBrest [
 
 	^ AbsoluteCoordinates 
@@ -91,7 +91,7 @@ AbsoluteCoordinates class >> frBrest [
 		altitudeInMeters: 52
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frElancourt [
 
 	^ AbsoluteCoordinates 
@@ -100,7 +100,7 @@ AbsoluteCoordinates class >> frElancourt [
 		altitudeInMeters: 138 
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frLyon [
 
 	^ AbsoluteCoordinates 
@@ -109,7 +109,7 @@ AbsoluteCoordinates class >> frLyon [
 		altitudeInMeters: 237 
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frMarseille [
 
 	^ AbsoluteCoordinates 
@@ -118,7 +118,7 @@ AbsoluteCoordinates class >> frMarseille [
 		altitudeInMeters: 320
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frNevers [
 
 	^ AbsoluteCoordinates 
@@ -127,7 +127,7 @@ AbsoluteCoordinates class >> frNevers [
 		altitudeInMeters: 203 
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frParis [
 
 	^ AbsoluteCoordinates 
@@ -136,7 +136,7 @@ AbsoluteCoordinates class >> frParis [
 		altitudeInMeters: 79 
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> frStRenan [
 
 	^ AbsoluteCoordinates 
@@ -412,7 +412,7 @@ AbsoluteCoordinates class >> readSpacedDMSString: aString [
 	^ d * sign asFloat
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> usaLosAngeles [
 
 	^ AbsoluteCoordinates 
@@ -421,7 +421,7 @@ AbsoluteCoordinates class >> usaLosAngeles [
 		altitudeInMeters: 96
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> usaNewYork [
 
 	^ AbsoluteCoordinates 
@@ -430,7 +430,7 @@ AbsoluteCoordinates class >> usaNewYork [
 		altitudeInMeters: 57 
 ]
 
-{ #category : #'instance creation' }
+{ #category : #cities }
 AbsoluteCoordinates class >> usaSeattle [
 
 	^ AbsoluteCoordinates 
@@ -475,13 +475,36 @@ AbsoluteCoordinates >> altitudeInMeters: aNumber [
 ]
 
 { #category : #converting }
+AbsoluteCoordinates >> asECEFCartesianCoordinates [ 
+	"Return Earth-Centered, Earth-Fixed cartesian coordinates corresponding to self"
+
+	| coslat coslat2 sinlat sinlon coslon h v n |
+	self isValid ifFalse:[ ^ nil ].
+	
+	coslat := self latitudeInRadians cos.
+	coslat2 := coslat * coslat.
+	sinlat := self latitudeInRadians sin.
+	sinlon := self longitudeInRadians sin.
+	coslon := self longitudeInRadians cos.
+	h := self altitudeInMeters ifNil:[ 0 ].
+	
+	v := ((WGS84 secondEccentricitySquared * coslat) + 1) sqrt.
+	n := WGS84 poleCurveRadius / v.
+	
+	^ CartesianCoordinates 
+		xInMeters: (n + h) * coslat * coslon
+		yInMeters: (n + h) * coslat * sinlon
+		zInMeters: ((n * (1 - WGS84 eccentricitySquared)) + h) * sinlat
+]
+
+{ #category : #converting }
 AbsoluteCoordinates >> asGeometryPoint [
 
 	| coord |
 	coord := G2DCoordinates new.
 	coord x: self longitudeInDegrees.
 	coord y: self latitudeInDegrees.
-	^GPoint coordinates: coord.
+	^ GPoint coordinates: coord
 ]
 
 { #category : #converting }
@@ -571,6 +594,48 @@ AbsoluteCoordinates >> latitudeInRadians: anObject [
 
 	anObject ifNil:[ latitudeInDegrees := nil. ^ self ].
 	self latitudeInDegrees: anObject radiansToDegrees
+]
+
+{ #category : #converting }
+AbsoluteCoordinates >> localToECEFCartesianCoordinates: aLocalCartesianCoordinates [
+	"Convert a local cartesian coordinates to an Earth-Centered, Earth-Fixed cartesian coordinates using self as referential"
+	
+	| xor yor zor lon lat slon slat clon clat clonclat clonslat slonslat slonclat ecefCartesianCoordinates |
+	
+	self isValid ifFalse:[ ^ nil ].
+	aLocalCartesianCoordinates isValid ifFalse:[ ^ nil ].
+	
+	ecefCartesianCoordinates := self asECEFCartesianCoordinates.
+	
+	xor := ecefCartesianCoordinates xInMeters.
+	yor := ecefCartesianCoordinates yInMeters.
+	zor := ecefCartesianCoordinates zInMeters.
+	
+	lon := self longitudeInRadians.
+	lat := self latitudeInRadians.
+	
+	slon := lon sin.
+	clon := lon cos.
+	slat := lat sin.
+	clat := lat cos.
+	
+	clonclat := clon * clat.
+	clonslat := clon * slat.
+	slonclat := slon * clat.
+	slonslat := slon * slat.
+	
+	^ CartesianCoordinates new
+		xInMeters: xor + 
+			(slon negated 		* aLocalCartesianCoordinates xInMeters) +
+			(clonclat negated 	* aLocalCartesianCoordinates yInMeters) +
+			(clonclat 			* aLocalCartesianCoordinates zInMeters)
+		yInMeters: yor +
+			(clon 			 		* aLocalCartesianCoordinates xInMeters) +
+			(slonslat negated 	* aLocalCartesianCoordinates yInMeters) +
+			(slonclat 			* aLocalCartesianCoordinates zInMeters)
+		zInMeters: zor +
+			(clat 			 		* aLocalCartesianCoordinates yInMeters) +
+			(slat 				 	* aLocalCartesianCoordinates zInMeters)
 ]
 
 { #category : #accessing }

@@ -55,7 +55,35 @@ CartesianCoordinates >> = aCartesianCoordinates [
 		and: [ self zInMeters = aCartesianCoordinates zInMeters ]]
 ]
 
-{ #category : #copying }
+{ #category : #converting }
+CartesianCoordinates >> asECEFtoAbsoluteCoordinates [
+	"Return absolute coordinates, suppose than self is an Earth-Centered, Earth-Fixed cartesian coordinates"
+	
+	| z x2 y2 d2 dh lat coslat v n absoluteCoordinates |
+	
+	self isValid ifFalse:[ ^ nil ].
+	absoluteCoordinates := AbsoluteCoordinates new.
+	absoluteCoordinates longitudeInRadians: (self yInMeters @ self xInMeters) theta.
+	
+	z := self zInMeters.
+	x2 := self xInMeters * self xInMeters.
+	y2 := self yInMeters * self yInMeters.
+	d2 := x2 + y2.
+	dh := d2 sqrt.
+	
+	1 to: 4 do: [ :i |
+		lat := (z @ dh) theta.
+		coslat := lat cos.
+		v := ((WGS84 secondEccentricitySquared * coslat * coslat) + 1) sqrt.
+		n := WGS84 poleCurveRadius / v.
+		z := self zInMeters + (n * WGS84 eccentricitySquared * lat sin) ].
+	
+	absoluteCoordinates latitudeInRadians: (z @ dh) theta.
+	absoluteCoordinates altitudeInMeters: (d2 + (z * z) - n) sqrt.	
+	^ absoluteCoordinates
+]
+
+{ #category : #converting }
 CartesianCoordinates >> asPoint [
 
 	self isValid ifFalse: [ ^ nil ].
