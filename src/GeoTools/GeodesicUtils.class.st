@@ -21,6 +21,7 @@ GeodesicUtils class >> absoluteCoordinatesAlongGeodesicFrom: from to: to atFract
 	(t >= 1.0) ifTrue: [ ^ to copy ].
 	(t <= 0.0) ifTrue: [ ^ from copy ].
 
+	self flag:'laborde: ne pas recalculer a chaque fois la distance et lazimuth'.
 	distance := self distanceInMetersFrom: from to: to.
 	azimuth := self azimuthInRadiansFrom: from to: to.
 
