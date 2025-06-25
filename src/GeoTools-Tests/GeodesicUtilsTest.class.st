@@ -29,7 +29,7 @@ GeodesicUtilsTest >> testAbsoluteCoordinatesFromDistanceInMAzimuthInRadiansEast 
 	azimuth := Float pi / 2.
 	result := GeodesicUtils
 		          absoluteCoordinatesFrom: startCoord
-		          distanceInM: distance
+		          distanceInMeters: distance
 		          azimuthInRadians: azimuth.
 		
 	expectedLat := 0.0.
@@ -52,7 +52,7 @@ GeodesicUtilsTest >> testAbsoluteCoordinatesFromDistanceInMAzimuthInRadiansNorth
 	"--- Nord (azimuth = 0 rad) ---"
 	result := GeodesicUtils
 		          absoluteCoordinatesFrom: startCoord
-		          distanceInM: distance
+		          distanceInMeters: distance
 		          azimuthInRadians: azimuth.
 
 	"On attend que la latitude ait augmenté d’environ distance/rayonTerre"
@@ -77,7 +77,7 @@ GeodesicUtilsTest >> testAbsoluteCoordinatesFromDistanceInMAzimuthInRadiansSouth
 	azimuth := Float pi.
 	result := GeodesicUtils
 		          absoluteCoordinatesFrom: startCoord
-		          distanceInM: distance
+		          distanceInMeters: distance
 		          azimuthInRadians: azimuth.
 	
 	expectedLat := (distance negated) / WGS84 semiMinorAxisInMeters.
@@ -101,7 +101,7 @@ GeodesicUtilsTest >> testAbsoluteCoordinatesFromDistanceInMAzimuthInRadiansWest 
 	azimuth := 3 * Float pi / 2.
 	result := GeodesicUtils
 		          absoluteCoordinatesFrom: startCoord
-		          distanceInM: distance
+		          distanceInMeters: distance
 		          azimuthInRadians: azimuth.
 	
 	expectedLat := 0.0.
