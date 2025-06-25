@@ -53,7 +53,7 @@ PolarCoordinates >> asCartesianCoordinates [
 		zInMeters: self azimuthInRadians sin * self distanceInMeters
 ]
 
-{ #category : #testing }
+{ #category : #converting }
 PolarCoordinates >> asPoint [
 
 	self isValid ifFalse:[ ^ nil ].
@@ -123,6 +123,16 @@ PolarCoordinates >> isEmpty [
 PolarCoordinates >> isValid [
 
 	^ self azimuthInRadians notNil and: [ self distanceInMeters notNil ]
+]
+
+{ #category : #converting }
+PolarCoordinates >> localToAbsoluteCoordinates: anOriginAbsoluteCoordinates [
+	"Convert a local polar coordinates to an absoluted coordinates by an Earth-Centered, Earth-Fixed cartesian coordinates using an absolute coordinates as referential"
+
+	| localCartesianCoordinates ecefCartesianCoordinates |
+	localCartesianCoordinates := self asCartesianCoordinates.
+	ecefCartesianCoordinates := anOriginAbsoluteCoordinates localToECEFCartesianCoordinates: localCartesianCoordinates.
+	^ ecefCartesianCoordinates asECEFtoAbsoluteCoordinates
 ]
 
 { #category : #copying }

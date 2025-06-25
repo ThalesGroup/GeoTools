@@ -1,7 +1,7 @@
 Class {
 	#name : #KinematicsTests,
 	#superclass : #TestCase,
-	#category : #'GeoTools-Tests'
+	#category : #'GeoTools-Tests-Kinematics'
 }
 
 { #category : #tests }
