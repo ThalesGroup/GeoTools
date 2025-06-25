@@ -209,13 +209,13 @@ GeodesicVincentyFormulas >> distanceInMetersFrom: aFromAbsoluteCoordinate to: aT
 	"Vincenty algorithm to compute distance between two Geodesic (lat/long) coordinates and return it in meter"
 	"https://en.wikipedia.org/wiki/Vincenty%27s_formulae"
 
-	| u1 u2 cosU1 cosU2 sinU1 sinU2 diffLong lambda sinLambda cosLambda d16 d17 d18 d19 lambdaP sinSigma cosSigma sigma cosSqAlpha cos2SigmaM d27 d28 d29 d30 d31 d32 l sinAlpha |
+	| u1 u2 cosU1 cosU2 sinU1 sinU2 diffLong lambda sinLambda cosLambda d16 d17 d18 d19 lambdaP sinSigma cosSigma sigma cosSqAlpha cos2SigmaM d27 d28 d29 d30 d31 d32 l sinAlpha noIterations |
 
 	(aFromAbsoluteCoordinate isValid not or:[aToAbsoluteCoordinate isValid not]) ifTrue:[ ^ 0 ].
 
-	(aFromAbsoluteCoordinate longitudeInRadians closeTo: aToAbsoluteCoordinate longitudeInRadians precision: 1e-7) ifTrue: 
-		[ (aFromAbsoluteCoordinate latitudeInRadians closeTo: aToAbsoluteCoordinate latitudeInRadians precision: 1e-7)
-			ifTrue: [ ^ 0 ]
+	(aFromAbsoluteCoordinate longitudeInRadians closeTo: aToAbsoluteCoordinate longitudeInRadians precision: self precision) ifTrue: 
+		[ (aFromAbsoluteCoordinate latitudeInRadians closeTo: aToAbsoluteCoordinate latitudeInRadians precision: self precision)
+			ifTrue: [ ^ self haversineDistanceFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate ]
 	].
 	 
 	u1 := ((1 - WGS84 flattening) * (aFromAbsoluteCoordinate latitudeInRadians tan)) arcTan.
@@ -230,8 +230,11 @@ GeodesicVincentyFormulas >> distanceInMetersFrom: aFromAbsoluteCoordinate to: aT
 	"d20 := 2 * d12."
 	lambdaP := 0.0.
 	
+	noIterations := true.
 	l := 1.
+	
 	[((lambda - lambdaP) abs >= self precision and: [ l < (self iterationsLimit) ])] whileTrue: [ 
+		noIterations := false.
 		lambdaP := lambda.
 		sinLambda := lambda sin.
 		cosLambda := lambda cos.
@@ -256,11 +259,16 @@ GeodesicVincentyFormulas >> distanceInMetersFrom: aFromAbsoluteCoordinate to: aT
 		l := l + 1. 
 	].
 	
+	noIterations ifTrue:[
+		"limit case, invoque haversine formula by default"	
+		^ self haversineDistanceFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate
+	].
+	
 	d29 := cosSqAlpha * WGS84 eccentricitySquared.
 	d30 := 1 + ((d29 / 16384) * (4096 + (d29 * (-768 + (d29 * (320 - (175 * d29))))))).
 	d31 := (d29 / 1024) * (256 + (d29 * (-128 + (d29 * (74 - (47 * d29)))))).
-	d17 := cosSigma * (-1 + (2 * (cos2SigmaM * cos2SigmaM))).
-	d19 := cos2SigmaM * (-3 + (4 * sinSigma * sinSigma)) * (-3 + (4 * cos2SigmaM * cos2SigmaM)).
+	d17 := cosSigma * (-1 + (2 * (cos2SigmaM squared))).
+	d19 := cos2SigmaM * (-3 + (4 * sinSigma squared)) * (-3 + (4 * cos2SigmaM squared)).
 	d32 := d31 * sinSigma * (cos2SigmaM + ((d31 / 4) * (d17 - ((d31 / 6) * d19)))).
 	
 	^ WGS84 semiMinorAxisInMeters * d30 * (sigma - d32)

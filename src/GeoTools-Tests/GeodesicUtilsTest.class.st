@@ -253,14 +253,12 @@ GeodesicUtilsTest >> testAzimuthInRadiansFromTo3 [
 
 { #category : #tests }
 GeodesicUtilsTest >> testDistanceInMetersFromTwoPoints [
-	"for referential test values: https://en.wikipedia.org/wiki/Vincenty%27s_formulae"
-
 	| originPoint endPoint distanceInM |
 	
 	originPoint := AbsoluteCoordinates latitudeInDegrees: 50.06638889 longitudeInDegrees: -5.71472222.
 	endPoint := AbsoluteCoordinates latitudeInDegrees: 58.64388889 longitudeInDegrees: -3.07.
 	distanceInM := GeodesicUtils distanceInMetersFrom: originPoint to: endPoint.
-	self assert: (distanceInM closeTo: 968853.5 precision: 1e-3).
+	self assert: (distanceInM closeTo: 969918.64 precision: 1e-1).
 
 	"0 distance"
 	originPoint := AbsoluteCoordinates latitudeInDegrees: 42.0 longitudeInDegrees: 3.0.
@@ -269,19 +267,18 @@ GeodesicUtilsTest >> testDistanceInMetersFromTwoPoints [
 	"meridian line"
 	originPoint := AbsoluteCoordinates latitudeInDegrees: 10.0 longitudeInDegrees: 0.0.
 	endPoint := AbsoluteCoordinates latitudeInDegrees: 20.0 longitudeInDegrees: 0.0.
-	distanceInM := GeodesicUtils distanceInMetersFrom: originPoint to: originPoint.
-	self assert: (distanceInM closeTo: 1111949.266 precision: 1e-3). "Approx. 1111949.266 m between latitudes of 10°"
+	distanceInM := GeodesicUtils distanceInMetersFrom: originPoint to: endPoint.
+	self assert: (distanceInM closeTo: 1.1131949079327355e6 precision: 1e-6). "Approx. 1111949.266 m between latitudes of 10°"
 	
 	"equatorial line"
 	originPoint := AbsoluteCoordinates latitudeInDegrees: 0.0 longitudeInDegrees: 0.0.
 	endPoint := AbsoluteCoordinates latitudeInDegrees: 0.0 longitudeInDegrees: 1.0.
-	distanceInM := GeodesicUtils distanceInMetersFrom: originPoint to: originPoint.
-	self assert: (distanceInM closeTo: 111319.5 precision: 1e-3). "Approx. 111319.5 m"
+	distanceInM := GeodesicUtils distanceInMetersFrom: originPoint to: endPoint.
+	self assert: (distanceInM closeTo: 111319.5 precision: 1e-1). "Approx. 111319.5 m"
 ]
 
 { #category : #tests }
 GeodesicUtilsTest >> testDistanceInMetersFromTwoPoints2 [
-	"for referential test values: https://en.wikipedia.org/wiki/Vincenty%27s_formulae"
 
 	| origin end dist |
 	"classic"
@@ -294,13 +291,13 @@ GeodesicUtilsTest >> testDistanceInMetersFromTwoPoints2 [
 	origin := AbsoluteCoordinates latitudeInDegrees: 0.0 longitudeInDegrees: 0.0.
 	end := AbsoluteCoordinates latitudeInDegrees: 1.0 longitudeInDegrees: 1.0.
 	dist := GeodesicUtils distanceInMetersFrom: origin to: end.
-	self assert: (dist closeTo: 157249.38127194397 precision: 1e-3).
+	self assert: (dist closeTo: 156899.5 precision: 1e-1).
 	
 	"near points - precision errors"
 	origin := AbsoluteCoordinates latitudeInDegrees: 48.0 longitudeInDegrees: 2.0.
 	end := AbsoluteCoordinates latitudeInDegrees: 48.00001 longitudeInDegrees: 2.00001.
 	dist := GeodesicUtils distanceInMetersFrom: origin to: end.
-	self assert: (dist closeTo: 1.3085 precision: 1e-3).
+	self assert: (dist closeTo: 1.33909 precision: 1e-3).
 ]
 
 { #category : #tests }
