@@ -203,15 +203,6 @@ AbsoluteCoordinatesTest >> testAbsoluteCoordinatesRandom [
 ]
 
 { #category : #tests }
-AbsoluteCoordinatesTest >> testAbsoluteCoordinatesZero [
-	| coord |
-	coord := AbsoluteCoordinates zero.
-	self assert: coord latitudeInDegrees equals: 0.
-	self assert: coord longitudeInDegrees equals: 0.
-	self assert: coord altitudeInMeters equals: 0.
-]
-
-{ #category : #tests }
 AbsoluteCoordinatesTest >> testAsLatLonDegreesPoint [
 
 	| point |
@@ -263,4 +254,38 @@ AbsoluteCoordinatesTest >> testDistanceBetweenKnownAbsoluteCoordinates [
 	az := az radiansToDegrees.
 	self assert: (az - 295) abs < 5.
 	self assert: (dist - 11500) abs < 1000
+]
+
+{ #category : #tests }
+AbsoluteCoordinatesTest >> testFromStringLatitudeLongitude [
+
+	self assert: (AbsoluteCoordinates fromStringLatitude: nil longitude: nil) isNil.
+	
+	self assert: (AbsoluteCoordinates fromStringLatitude: '0' longitude: '0') equals: AbsoluteCoordinates zeroLatLon.
+
+	self assert: (AbsoluteCoordinates fromStringLatitude: 'N0°0''0""' longitude: 'E0°0''0""') equals: AbsoluteCoordinates zeroLatLon.
+	self assert: (AbsoluteCoordinates fromStringLatitude: 'N0°0''0''''' longitude: 'E0°0''0''''') equals: AbsoluteCoordinates zeroLatLon.
+	
+	self assert: (AbsoluteCoordinates fromStringLatitude: 'N0°02''0""' longitude: 'E0°0''0""') equals: (AbsoluteCoordinates latitudeInDegrees: 0.03333333333333333 longitudeInDegrees: 0).
+	self assert: (AbsoluteCoordinates fromStringLatitude: 'S0°02''0''''' longitude: 'E0°0''0''''') equals: (AbsoluteCoordinates latitudeInDegrees: -0.03333333333333333 longitudeInDegrees: 0).
+]
+
+{ #category : #tests }
+AbsoluteCoordinatesTest >> testZero [
+
+	| coord |
+	coord := AbsoluteCoordinates zero.
+	self assert: coord latitudeInDegrees equals: 0.
+	self assert: coord longitudeInDegrees equals: 0.
+	self assert: coord altitudeInMeters equals: 0
+]
+
+{ #category : #tests }
+AbsoluteCoordinatesTest >> testZeroLatLon [
+
+	| coord |
+	coord := AbsoluteCoordinates zeroLatLon.
+	self assert: coord latitudeInDegrees equals: 0.
+	self assert: coord longitudeInDegrees equals: 0.
+	self assert: coord altitudeInMeters isNil
 ]
