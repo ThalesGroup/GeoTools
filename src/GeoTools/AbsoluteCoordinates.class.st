@@ -21,28 +21,32 @@ AbsoluteCoordinates class >> ausSydney [
 		altitudeInMeters: 58
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> charDegree [
-
-	^Character value: 16rB0
+	" $° "
+	^ Character value: 16rB0
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> charMinute [
-	^(Character value: 16r27)
+	" $' "
+	^ Character value: 16r27
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> charPoint [
-	^$.
+
+	^ $.
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> charSecond [
-	^(Character value: 16r22)
+	" $"" "
+
+	^ Character value: 16r22
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> cleanLatitudeString: aString [
 	"clean latitude string from parsing file characters"
 
@@ -60,17 +64,11 @@ AbsoluteCoordinates class >> cleanLatitudeString: aString [
 { #category : #'reading tools' }
 AbsoluteCoordinates class >> createFromLatString: latitudeString lonString: longitudeString [
 
-	| _lat _lon |
-
-	(latitudeString isNil or:[latitudeString isEmpty]) ifTrue:[^nil].
-	(longitudeString isNil or:[longitudeString isEmpty]) ifTrue:[^nil].
-
-	_lat := self readLatitudeString: latitudeString.
-	_lon := self readLongitudeString: longitudeString.
-
-	(_lat isNil or:[_lon isNil]) ifTrue:[^nil].
-
-	^self new latitudeInDegrees: _lat; longitudeInDegrees: _lon; yourself.
+	self 
+		deprecated: 'use fromX' 
+		transformWith: '`@receiver createFromLatString: `@latitudeString lonString: `@longitudeString'' -> ''`@receiver fromStringLatitude: `@latitudeString longitude: `@longitudeString'.
+	
+	^ self fromStringLatitude: latitudeString longitude: longitudeString
 ]
 
 { #category : #cities }
@@ -146,6 +144,23 @@ AbsoluteCoordinates class >> frStRenan [
 ]
 
 { #category : #'reading tools' }
+AbsoluteCoordinates class >> fromStringLatitude: latitudeString longitude: longitudeString [
+
+	| latitude longitude |
+	(latitudeString isNil or: [ latitudeString isEmpty ]) ifTrue: [
+		^ nil ].
+	(longitudeString isNil or: [ longitudeString isEmpty ]) ifTrue: [
+		^ nil ].
+
+	latitude := self readLatitudeString: latitudeString.
+	longitude := self readLongitudeString: longitudeString.
+
+	(latitude isNil or: [ longitude isNil ]) ifTrue: [ ^ nil ].
+
+	^ self latitudeInDegrees: latitude longitudeInDegrees: longitude
+]
+
+{ #category : #private }
 AbsoluteCoordinates class >> geoStringFormat: aString [
 	"read a geo string and return the format"
 
@@ -163,7 +178,7 @@ AbsoluteCoordinates class >> geoStringFormat: aString [
 	^nil
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> in: aString removeChar: aChar [
 
 | rs ws |
@@ -178,7 +193,7 @@ AbsoluteCoordinates class >> in: aString removeChar: aChar [
 	^ ws contents
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> in: aString removeFirstChar: aChar [
 
 	| rs ws str |
@@ -193,38 +208,49 @@ AbsoluteCoordinates class >> in: aString removeFirstChar: aChar [
 	^ ws contents
 ]
 
-{ #category : #'reading tools' }
+{ #category : #testing }
 AbsoluteCoordinates class >> isStringMatchingDMC: aString [
-	"self isStringMatchingDMC:  '[Point] X°X.X'' [Point]"
+	"self isStringMatchingDMC: '000°00''00''''N' "
+	
+	| pattern |
+	pattern := String new writeStream.
+	pattern nextPutAll: '*'.
+	pattern nextPutAll: self charDegree asSymbol asText.
+	pattern nextPutAll: '*'.
+	pattern nextPutAll: self charPoint asSymbol asText.
+	pattern nextPutAll: '*'.
 
-	| _pattern |
-	_pattern := String new writeStream.
-	_pattern nextPutAll: '*'.
-	_pattern nextPutAll: self charDegree asSymbol asText.
-	_pattern nextPutAll: '*'.
-	_pattern nextPutAll: self charPoint asSymbol asText.
-	_pattern nextPutAll: '*'.
-	"_pattern nextPutAll: self charMinute asSymbol asText.
-	_pattern nextPutAll: '*'."
-
-	^_pattern contents match: aString
+	^ pattern contents match: aString
 ]
 
-{ #category : #'reading tools' }
+{ #category : #testing }
 AbsoluteCoordinates class >> isStringMatchingDMS: aString [
-	"self isStringMatchingDMS: '000°00''00''''N'	"
+	"self isStringMatchingDMS: 'N000°00''00'''''	"
 
-	| _pattern |
-	_pattern := String new writeStream.
-	_pattern nextPutAll: '*'.
-	_pattern nextPutAll: self charDegree asSymbol asText.
-	_pattern nextPutAll: '*'.
-	_pattern nextPutAll: self charMinute asSymbol asText.
-	_pattern nextPutAll: '*'.
-	_pattern nextPutAll: self charSecond asSymbol asText.
-	_pattern nextPutAll: '*'.
+	| pattern |
+	pattern := String new writeStream.
+	pattern nextPutAll: '*'.
+	pattern nextPutAll: self charDegree asSymbol asText.
+	pattern nextPutAll: '*'.
+	pattern nextPutAll: self charMinute asSymbol asText.
+	pattern nextPutAll: '*'.
+	pattern nextPutAll: self charSecond asSymbol asText.
+	pattern nextPutAll: '*'.
 
-	^_pattern contents match: aString
+	(pattern contents match: aString) ifTrue:[ ^ true ].
+	
+	"Try to check with double minute char as seconds"
+	pattern := String new writeStream.
+	pattern nextPutAll: '*'.
+	pattern nextPutAll: self charDegree asSymbol asText.
+	pattern nextPutAll: '*'.
+	pattern nextPutAll: self charMinute asSymbol asText.
+	pattern nextPutAll: '*'.
+	pattern nextPutAll: self charMinute asSymbol asText.
+	pattern nextPutAll: self charMinute asSymbol asText.
+	pattern nextPutAll: '*'.
+	
+	^ pattern contents match: aString
 ]
 
 { #category : #'instance creation' }
@@ -280,7 +306,7 @@ AbsoluteCoordinates class >> random [
 				   ifFalse: [ 1 negated ])
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> readDMCString: aString [ 
 	"Degree Minute Centième de minute"
 	"N 49°36.99'"
@@ -288,7 +314,7 @@ AbsoluteCoordinates class >> readDMCString: aString [
 	^self readDMMString: aString
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> readDMDString: aString [ 
 	"Degree Minute en décimal"
 	"	N 49°36.999 	"
@@ -315,7 +341,7 @@ AbsoluteCoordinates class >> readDMDString: aString [
 	^d * sign asFloat
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> readDMMString: aString [ 
 	"Degree Minute Millième de minute"
 	"	N 49°36.999'	"
@@ -323,7 +349,7 @@ AbsoluteCoordinates class >> readDMMString: aString [
 	^self readDMDString: aString
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> readDMSString: aString [ 
 	"Degree Minute Second"
 
@@ -340,9 +366,9 @@ AbsoluteCoordinates class >> readDMSString: aString [
 	_string := _string removeChar: $O.
 
 	rs := ReadStream on: _string.
-	degree := (rs upTo: self charDegree) asNumber.
-	minute := (rs upTo: self charMinute) asNumber. 
-	second := (rs upTo: self charSecond) asNumber.
+	degree := (rs upTo: self charDegree) ifNotEmpty: [ :e | e asNumber ] ifEmpty: [ 0 ].
+	minute := (rs upTo: self charMinute) ifNotEmpty: [ :e | e asNumber ] ifEmpty: [ 0 ].
+	second := (rs upTo: self charSecond) ifNotEmpty: [ :e | e asNumber ] ifEmpty: [ 0 ].
 
 	"conversion"
 	s := second / 60.
@@ -351,7 +377,7 @@ AbsoluteCoordinates class >> readDMSString: aString [
 	^d * sign asFloat
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> readLatitudeString: aString [
 	"read a latitude string and return the latitude value"
 
@@ -373,14 +399,14 @@ AbsoluteCoordinates class >> readLatitudeString: aString [
 	^nil
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> readLongitudeString: aString [
 	"read a longitude string and return the longitude value"
 
  	^self readLatitudeString: aString
 ]
 
-{ #category : #'reading tools' }
+{ #category : #private }
 AbsoluteCoordinates class >> readSpacedDMSString: aString [
 	"Degree Minute Second"
 
@@ -443,6 +469,12 @@ AbsoluteCoordinates class >> usaSeattle [
 AbsoluteCoordinates class >> zero [
 
 	^ self latitudeInDegrees: 0 longitudeInDegrees: 0 altitudeInMeters: 0
+]
+
+{ #category : #'instance creation' }
+AbsoluteCoordinates class >> zeroLatLon [
+
+	^ self latitudeInDegrees: 0 longitudeInDegrees: 0
 ]
 
 { #category : #comparing }
