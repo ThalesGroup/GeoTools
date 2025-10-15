@@ -72,6 +72,12 @@ WGS84 class >> semiMinorAxisInMeters [
 	^ 6356752.314245
 ]
 
+{ #category : #properties }
+WGS84 class >> worldCircumferenceInMeters [
+
+	^ 2 * Float pi * self semiMajorAxisInMeters 
+]
+
 { #category : #'see class side' }
 WGS84 >> seeClassSide [ 
 ]

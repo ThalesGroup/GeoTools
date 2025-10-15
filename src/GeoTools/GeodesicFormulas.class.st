@@ -7,16 +7,7 @@ Class {
 { #category : #tools }
 GeodesicFormulas >> absoluteCoordinatesAlongGeodesicFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate atFraction: aFraction [
 
-	| distance azimuth |
-	
-	(aFromAbsoluteCoordinate isValid and: [aToAbsoluteCoordinate isValid]) ifFalse: [ ^ nil ].
-	(aFraction >= 1.0) ifTrue: [ ^ aToAbsoluteCoordinate copy ].
-	(aFraction <= 0.0) ifTrue: [ ^ aFromAbsoluteCoordinate copy ].
-	
-	distance := self distanceInMetersFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate.
-	azimuth := self azimuthInRadiansFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate.
-
-	^ self absoluteCoordinatesFrom: aFromAbsoluteCoordinate distanceInMeters: (distance * aFraction) azimuthInRadians: azimuth
+	self subclassResponsibility 
 ]
 
 { #category : #tools }

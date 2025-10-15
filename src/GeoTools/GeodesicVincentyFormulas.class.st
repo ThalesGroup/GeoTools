@@ -24,6 +24,24 @@ GeodesicVincentyFormulas class >> defaultPrecision [
 ]
 
 { #category : #tools }
+GeodesicVincentyFormulas >> absoluteCoordinatesAlongGeodesicFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate atFraction: aFraction [
+
+	| distance azimuth |
+	
+	(aFromAbsoluteCoordinate isValid and: [aToAbsoluteCoordinate isValid]) ifFalse: [ ^ nil ].
+	(aFraction >= 1.0) ifTrue: [ ^ aToAbsoluteCoordinate copy ].
+	(aFraction <= 0.0) ifTrue: [ ^ aFromAbsoluteCoordinate copy ].
+	
+	distance := self distanceInMetersFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate.
+	azimuth := self azimuthInRadiansFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate.
+
+	distance := distance * aFraction.
+	distance < self precision ifTrue:[ ^ aFromAbsoluteCoordinate copy ].
+
+	^ self absoluteCoordinatesFrom: aFromAbsoluteCoordinate distanceInMeters: distance azimuthInRadians: azimuth
+]
+
+{ #category : #tools }
 GeodesicVincentyFormulas >> absoluteCoordinatesFrom: anAbsoluteCoordinates distanceInMeters: aDistanceInM azimuthInRadians: anAzimuthInRadians [
 	| a f b lat1 lon1 alpha1 sinAlpha1 cosAlpha1 u1 sinU1 cosU1 sigma1 sinAlpha cosSqAlpha uSq A B sigma sigmaPrev iterLimit cosSigma sinSigma lat2 deltaSigma C L lon2 lambda cos2SigmaM tmp |
 
@@ -56,6 +74,9 @@ GeodesicVincentyFormulas >> absoluteCoordinatesFrom: anAbsoluteCoordinates dista
     B := (uSq / 1024) * (256 + (uSq * (-128 + (uSq * (74 - (47 * uSq)))))).
 
     sigma := aDistanceInM / (b * A).
+	 sinSigma := sigma sin.
+    cosSigma := sigma cos.
+	 cos2SigmaM := ((2 * sigma1) + sigma) cos.
     sigmaPrev := 0.0.
     iterLimit := self iterationsLimit copy.
 
@@ -289,13 +310,14 @@ GeodesicVincentyFormulas >> iterationsLimit: anObject [
 
 { #category : #accessing }
 GeodesicVincentyFormulas >> precision [
+	"Return the precision of computing in meters"
 
 	^ precision ifNil: [
 		  precision := self class defaultPrecision ]
 ]
 
 { #category : #accessing }
-GeodesicVincentyFormulas >> precision: anObject [
+GeodesicVincentyFormulas >> precision: aFloatInMeters [
 
-	precision := anObject
+	precision := aFloatInMeters
 ]
