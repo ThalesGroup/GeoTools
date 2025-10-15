@@ -7,8 +7,6 @@ SmalltalkCISpec {
     }
   ],
   #testing : {
-    #include : {
-      #packages : [ 'GeoTools*-Tests' ]
-    }
+    #packages : [ 'GeoTools-Tests' ]
   }
 }

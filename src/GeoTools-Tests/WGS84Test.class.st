@@ -43,3 +43,9 @@ WGS84Test >> testSemiMinorAxisInMeters [
 
 	self assert: WGS84 semiMinorAxisInMeters notNil
 ]
+
+{ #category : #running }
+WGS84Test >> testWorldCircumferenceInMeters [
+
+	self assert: WGS84 worldCircumferenceInMeters equals: 4.007501668557849e7
+]
