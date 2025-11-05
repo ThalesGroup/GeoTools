@@ -590,10 +590,23 @@ AbsoluteCoordinates >> isEmpty [
 	^ self latitudeInDegrees isNil and: [ self longitudeInDegrees isNil and: [ self altitudeInMeters isNil ] ]
 ]
 
+{ #category : #testing }
+AbsoluteCoordinates >> isLatLonZero [
+
+	^ self latitudeInDegrees = 0 and: [ self longitudeInDegrees = 0 ]
+]
+
 { #category : #accessing }
 AbsoluteCoordinates >> isValid [
 
 	^ self latitudeInDegrees notNil and: [ self longitudeInDegrees notNil ]
+]
+
+{ #category : #testing }
+AbsoluteCoordinates >> isZero [
+
+	^ self isLatLonZero and: [
+		  self altitudeInMeters = 0 or: [ self altitudeInMeters isNil ] ]
 ]
 
 { #category : #accessing }
