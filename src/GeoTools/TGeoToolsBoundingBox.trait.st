@@ -21,7 +21,7 @@ TGeoToolsBoundingBox >> bottomLatitudeInDegrees: anObject [
 	bottomLatitudeInDegrees := anObject
 ]
 
-{ #category : #corners }
+{ #category : #points }
 TGeoToolsBoundingBox >> bottomLeftAbsoluteCoordinates [
 
 	^ AbsoluteCoordinates
@@ -29,14 +29,14 @@ TGeoToolsBoundingBox >> bottomLeftAbsoluteCoordinates [
 		  longitudeInDegrees: self leftLongitudeInDegrees
 ]
 
-{ #category : #corners }
+{ #category : #points }
 TGeoToolsBoundingBox >> bottomLeftAbsoluteCoordinates: anAbsoluteCoordinates [
 
 	self bottomLatitudeInDegrees: anAbsoluteCoordinates latitudeInDegrees.
 	self leftLongitudeInDegrees: anAbsoluteCoordinates longitudeInDegrees
 ]
 
-{ #category : #corners }
+{ #category : #points }
 TGeoToolsBoundingBox >> bottomRightAbsoluteCoordinates [ 
 
 	^ AbsoluteCoordinates
@@ -44,11 +44,34 @@ TGeoToolsBoundingBox >> bottomRightAbsoluteCoordinates [
 		  longitudeInDegrees: self rightLongitudeInDegrees
 ]
 
-{ #category : #corners }
+{ #category : #points }
 TGeoToolsBoundingBox >> bottomRightAbsoluteCoordinates: anAbsoluteCoordinates [
 
 	self bottomLatitudeInDegrees: anAbsoluteCoordinates latitudeInDegrees.
 	self rightLongitudeInDegrees: anAbsoluteCoordinates longitudeInDegrees
+]
+
+{ #category : #points }
+TGeoToolsBoundingBox >> centerAbsoluteCoordinates [
+
+	| latitude longitude |
+	latitude := (self topLatitudeInDegrees isNil or: [
+		             self bottomLatitudeInDegrees isNil ])
+		            ifTrue: [ nil ]
+		            ifFalse: [
+		            self topLatitudeInDegrees
+		             + self bottomLatitudeInDegrees / 2 ].
+
+	longitude := (self leftLongitudeInDegrees isNil or: [
+		              self rightLongitudeInDegrees isNil ])
+		             ifTrue: [ nil ]
+		             ifFalse: [
+			             self leftLongitudeInDegrees
+			              + self rightLongitudeInDegrees / 2 ].
+
+	^ AbsoluteCoordinates
+		  latitudeInDegrees: latitude
+		  longitudeInDegrees: longitude
 ]
 
 { #category : #accessing }
@@ -111,7 +134,7 @@ TGeoToolsBoundingBox >> topLatitudeInDegrees: anObject [
 	topLatitudeInDegrees := anObject
 ]
 
-{ #category : #corners }
+{ #category : #points }
 TGeoToolsBoundingBox >> topLeftAbsoluteCoordinates [ 
 
 	^ AbsoluteCoordinates
@@ -119,14 +142,14 @@ TGeoToolsBoundingBox >> topLeftAbsoluteCoordinates [
 		  longitudeInDegrees: self leftLongitudeInDegrees
 ]
 
-{ #category : #corners }
+{ #category : #points }
 TGeoToolsBoundingBox >> topLeftAbsoluteCoordinates: anAbsoluteCoordinates [
 
 	self topLatitudeInDegrees: anAbsoluteCoordinates latitudeInDegrees.
 	self leftLongitudeInDegrees: anAbsoluteCoordinates longitudeInDegrees
 ]
 
-{ #category : #corners }
+{ #category : #points }
 TGeoToolsBoundingBox >> topRightAbsoluteCoordinates [ 
 
 	^ AbsoluteCoordinates
@@ -134,7 +157,7 @@ TGeoToolsBoundingBox >> topRightAbsoluteCoordinates [
 		  longitudeInDegrees: self rightLongitudeInDegrees
 ]
 
-{ #category : #corners }
+{ #category : #points }
 TGeoToolsBoundingBox >> topRightAbsoluteCoordinates: anAbsoluteCoordinates [
 
 	self topLatitudeInDegrees: anAbsoluteCoordinates latitudeInDegrees.

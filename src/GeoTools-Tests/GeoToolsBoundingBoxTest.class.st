@@ -19,6 +19,26 @@ GeoToolsBoundingBoxTest >> setUp [
 ]
 
 { #category : #running }
+GeoToolsBoundingBoxTest >> setUpBottomCenterSmallBox [
+
+	boundingBox
+		topLatitudeInDegrees: -1;
+		rightLongitudeInDegrees: 1;
+		bottomLatitudeInDegrees: -2;
+		leftLongitudeInDegrees: -1
+]
+
+{ #category : #running }
+GeoToolsBoundingBoxTest >> setUpBottomLeftSmallBox [
+
+	boundingBox
+		topLatitudeInDegrees: -1;
+		rightLongitudeInDegrees: -1;
+		bottomLatitudeInDegrees: -2;
+		leftLongitudeInDegrees: -2
+]
+
+{ #category : #running }
 GeoToolsBoundingBoxTest >> setUpSmallBox [
 
 	boundingBox
@@ -26,6 +46,26 @@ GeoToolsBoundingBoxTest >> setUpSmallBox [
 		rightLongitudeInDegrees: 1;
 		bottomLatitudeInDegrees: -1;
 		leftLongitudeInDegrees: -1
+]
+
+{ #category : #running }
+GeoToolsBoundingBoxTest >> setUpTopCenterSmallBox [
+
+	boundingBox
+		topLatitudeInDegrees: 2;
+		rightLongitudeInDegrees: 1;
+		bottomLatitudeInDegrees: 1;
+		leftLongitudeInDegrees: -1
+]
+
+{ #category : #running }
+GeoToolsBoundingBoxTest >> setUpTopRightSmallBox [
+
+	boundingBox
+		topLatitudeInDegrees: 2;
+		rightLongitudeInDegrees: 2;
+		bottomLatitudeInDegrees: 1;
+		leftLongitudeInDegrees: 1
 ]
 
 { #category : #running }
@@ -77,6 +117,40 @@ GeoToolsBoundingBoxTest >> testBottomRightAbsoluteCoordinates [
 	boundingBox bottomRightAbsoluteCoordinates: AbsoluteCoordinates zero.
 	self assert: boundingBox bottomRightAbsoluteCoordinates isValid.
 	self assert: boundingBox bottomRightAbsoluteCoordinates isZero.
+]
+
+{ #category : #tests }
+GeoToolsBoundingBoxTest >> testCenterAbsoluteCoordinates [
+
+	self assert: boundingBox centerAbsoluteCoordinates isValid not.
+	
+	self setUpZeroBox.
+	self assert: boundingBox centerAbsoluteCoordinates isValid.
+	self assert: boundingBox centerAbsoluteCoordinates isZero.
+	
+	self setUpSmallBox.
+	self assert: boundingBox centerAbsoluteCoordinates isValid.
+	self assert: boundingBox centerAbsoluteCoordinates isZero.
+	
+	self setUpTopRightSmallBox.
+	self assert: boundingBox centerAbsoluteCoordinates isValid.
+	self assert: boundingBox centerAbsoluteCoordinates latitudeInDegrees equals: 1.5.
+	self assert: boundingBox centerAbsoluteCoordinates longitudeInDegrees equals: 1.5.
+	
+	self setUpBottomLeftSmallBox.
+	self assert: boundingBox centerAbsoluteCoordinates isValid.
+	self assert: boundingBox centerAbsoluteCoordinates latitudeInDegrees equals: -1.5.
+	self assert: boundingBox centerAbsoluteCoordinates longitudeInDegrees equals: -1.5.
+	
+	self setUpTopCenterSmallBox.
+	self assert: boundingBox centerAbsoluteCoordinates isValid.
+	self assert: boundingBox centerAbsoluteCoordinates latitudeInDegrees equals: 1.5.
+	self assert: boundingBox centerAbsoluteCoordinates longitudeInDegrees equals: 0.
+	
+	self setUpBottomCenterSmallBox.
+	self assert: boundingBox centerAbsoluteCoordinates isValid.
+	self assert: boundingBox centerAbsoluteCoordinates latitudeInDegrees equals: -1.5.
+	self assert: boundingBox centerAbsoluteCoordinates longitudeInDegrees equals: 0.
 ]
 
 { #category : #tests }
