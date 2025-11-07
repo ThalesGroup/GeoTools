@@ -271,21 +271,29 @@ AbsoluteCoordinatesTest >> testFromStringLatitudeLongitude [
 ]
 
 { #category : #tests }
-AbsoluteCoordinatesTest >> testZero [
-
-	| coord |
-	coord := AbsoluteCoordinates zero.
-	self assert: coord latitudeInDegrees equals: 0.
-	self assert: coord longitudeInDegrees equals: 0.
-	self assert: coord altitudeInMeters equals: 0
-]
-
-{ #category : #tests }
-AbsoluteCoordinatesTest >> testZeroLatLon [
+AbsoluteCoordinatesTest >> testIsLatLonZero [
 
 	| coord |
 	coord := AbsoluteCoordinates zeroLatLon.
 	self assert: coord latitudeInDegrees equals: 0.
 	self assert: coord longitudeInDegrees equals: 0.
-	self assert: coord altitudeInMeters isNil
+	self assert: coord altitudeInMeters isNil.
+	self assert: coord isLatLonZero.
+	self assert: coord isZero.
+	
+	coord altitudeInMeters: 20.
+	self assert: coord isLatLonZero.
+	self deny: coord isZero.
+]
+
+{ #category : #tests }
+AbsoluteCoordinatesTest >> testIsZero [
+
+	| coord |
+	coord := AbsoluteCoordinates zero.
+	self assert: coord latitudeInDegrees equals: 0.
+	self assert: coord longitudeInDegrees equals: 0.
+	self assert: coord altitudeInMeters equals: 0.
+	self assert: coord isLatLonZero.
+	self assert: coord isZero.
 ]
