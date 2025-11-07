@@ -584,7 +584,7 @@ AbsoluteCoordinates >> copy [
 	^copy
 ]
 
-{ #category : #accessing }
+{ #category : #testing }
 AbsoluteCoordinates >> isEmpty [
 
 	^ self latitudeInDegrees isNil and: [ self longitudeInDegrees isNil and: [ self altitudeInMeters isNil ] ]
