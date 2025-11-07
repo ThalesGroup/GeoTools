@@ -9,6 +9,22 @@ Trait {
 	#category : #'GeoTools-Coordinates'
 }
 
+{ #category : #constructor }
+TGeoToolsBoundingBox classSide >> origin: aFromAbsolutePosition corner: aToAbsolutePostion [
+
+	^ self topLeft: aFromAbsolutePosition bottomRight: aToAbsolutePostion
+]
+
+{ #category : #constructor }
+TGeoToolsBoundingBox classSide >> topLeft: aFromAbsolutePosition bottomRight: aToAbsolutePostion [
+
+	| box |
+	box := self new.
+	box topLeftAbsoluteCoordinates: aFromAbsolutePosition.
+	box bottomRightAbsoluteCoordinates: aToAbsolutePostion.
+	^ box
+]
+
 { #category : #accessing }
 TGeoToolsBoundingBox >> bottomLatitudeInDegrees [
 

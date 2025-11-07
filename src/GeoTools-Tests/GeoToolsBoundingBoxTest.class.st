@@ -211,6 +211,14 @@ GeoToolsBoundingBoxTest >> testMinLongitudeInDegrees [
 ]
 
 { #category : #tests }
+GeoToolsBoundingBoxTest >> testOriginCorner [
+
+	| box |
+	box := GeoToolsBoundingBox origin: AbsoluteCoordinates zero corner: AbsoluteCoordinates frParis.
+	self assert: box centerAbsoluteCoordinates isValid.
+]
+
+{ #category : #tests }
 GeoToolsBoundingBoxTest >> testRightLongitudeInDegrees [
 
 	self assert: boundingBox rightLongitudeInDegrees isNil.
@@ -242,6 +250,14 @@ GeoToolsBoundingBoxTest >> testTopLeftAbsoluteCoordinates [
 	boundingBox topLeftAbsoluteCoordinates: AbsoluteCoordinates zero.
 	self assert: boundingBox topLeftAbsoluteCoordinates isValid.
 	self assert: boundingBox topLeftAbsoluteCoordinates isZero.
+]
+
+{ #category : #tests }
+GeoToolsBoundingBoxTest >> testTopLeftBottomRight [
+
+	| box |
+	box := GeoToolsBoundingBox topLeft: AbsoluteCoordinates zero bottomRight: AbsoluteCoordinates frParis.
+	self assert: box centerAbsoluteCoordinates isValid.
 ]
 
 { #category : #tests }
