@@ -1,13 +1,24 @@
 Class {
 	#name : #KinematicsTests,
 	#superclass : #TestCase,
+	#instVars : [
+		'kinematics'
+	],
 	#category : #'GeoTools-Tests-Kinematics'
 }
 
+{ #category : #running }
+KinematicsTests >> setUp [
+
+	super setUp.
+
+	kinematics := Kinematics new
+]
+
 { #category : #tests }
 KinematicsTests >> testCopy [
-	| kinematics copy |
-	kinematics := Kinematics new.
+	| copy |
+
 	kinematics headingInRadians: 10.
 	kinematics courseInRadians: 89.
 	kinematics groundSpeedInMetersPerSecond: 50.
@@ -31,9 +42,7 @@ KinematicsTests >> testCopy [
 
 { #category : #tests }
 KinematicsTests >> testCourse [
-	| kinematics |
-	kinematics := Kinematics new.
-	
+		
 	kinematics courseInDegrees: 0.
 	self assert: kinematics courseInDegrees equals: 0.
 	self assert: kinematics courseInRadians equals: 0.
@@ -53,8 +62,7 @@ KinematicsTests >> testCourse [
 
 { #category : #tests }
 KinematicsTests >> testCreate [
-	| kinematics |
-	kinematics := Kinematics new.
+
 	self assert: kinematics course isNil.
 	self assert: kinematics groundSpeed isNil.
 	self assert: kinematics heading isNil.
@@ -62,8 +70,7 @@ KinematicsTests >> testCreate [
 
 { #category : #tests }
 KinematicsTests >> testEdit [
-	| kinematics |
-	kinematics := Kinematics new.
+
 	kinematics headingInRadians: 10.
 	kinematics courseInRadians: 89.
 	kinematics groundSpeedInMetersPerSecond: 50.
@@ -81,9 +88,7 @@ KinematicsTests >> testEdit [
 
 { #category : #tests }
 KinematicsTests >> testGroundSpeed [
-	| kinematics |
-	kinematics := Kinematics new.
-	
+
 	kinematics groundSpeedInMetersPerSecond: 0.
 	self assert: kinematics groundSpeedInMetersPerSecond equals: 0.
 	self assert: kinematics groundSpeedInKnots equals: 0.
@@ -103,8 +108,6 @@ KinematicsTests >> testGroundSpeed [
 
 { #category : #tests }
 KinematicsTests >> testHeading [
-	| kinematics |
-	kinematics := Kinematics new.
 	
 	kinematics headingInDegrees: 0.
 	self assert: kinematics headingInDegrees equals: 0.
@@ -121,4 +124,14 @@ KinematicsTests >> testHeading [
 	kinematics headingInRadians: 0.5.
 	self assert: kinematics headingInDegrees equals: 28.64788975654116.
 	self assert: kinematics headingInRadians equals: 0.5.
+]
+
+{ #category : #tests }
+KinematicsTests >> testRandom [ 
+
+	kinematics := Kinematics random.
+
+	self assert: kinematics course notNil.
+	self assert: kinematics groundSpeed notNil.
+	self assert: kinematics heading notNil.
 ]

@@ -297,3 +297,11 @@ AbsoluteCoordinatesTest >> testIsZero [
 	self assert: coord isLatLonZero.
 	self assert: coord isZero.
 ]
+
+{ #category : #tests }
+AbsoluteCoordinatesTest >> testRandom [
+
+	| coordinates |
+	coordinates := AbsoluteCoordinates random.
+	self assert: coordinates isNotEmpty
+]
