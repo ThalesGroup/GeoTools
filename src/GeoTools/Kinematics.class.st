@@ -13,6 +13,19 @@ Class {
 	#category : #'GeoTools-Kinematics'
 }
 
+{ #category : #'instance creation' }
+Kinematics class >> random [
+
+	<script: 'self random inspect'>
+	| random kinematics |
+	random := Random new.
+	kinematics := self new.
+	kinematics courseInDegrees: ((random next * 360) % 360).
+	kinematics groundSpeedInMetersPerSecond: (random next * 10).
+	kinematics headingInDegrees: ((random next * 360) % 360).
+	^ kinematics
+]
+
 { #category : #copying }
 Kinematics >> = aKinematics [
 	^ self course = aKinematics course
