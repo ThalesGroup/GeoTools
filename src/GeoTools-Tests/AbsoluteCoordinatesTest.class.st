@@ -307,16 +307,6 @@ AbsoluteCoordinatesTest >> testRandom [
 ]
 
 { #category : #tests }
-AbsoluteCoordinatesTest >> testReadDMC [
-
-	self assert: (AbsoluteCoordinates readLatitudeString: nil) isNil.
-	
-	self assert: (AbsoluteCoordinates readLatitudeString: 'N 0°0.0' ) equals: AbsoluteCoordinates zeroLatLon latitude .
-
-	
-]
-
-{ #category : #tests }
 AbsoluteCoordinatesTest >> testReadLatitude [
 
 	self assert: (AbsoluteCoordinates readLatitudeString: nil) isNil.
