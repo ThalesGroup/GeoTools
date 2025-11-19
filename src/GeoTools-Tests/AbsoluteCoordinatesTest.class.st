@@ -305,3 +305,50 @@ AbsoluteCoordinatesTest >> testRandom [
 	coordinates := AbsoluteCoordinates random.
 	self assert: coordinates isNotEmpty
 ]
+
+{ #category : #tests }
+AbsoluteCoordinatesTest >> testReadDMC [
+
+	self assert: (AbsoluteCoordinates readLatitudeString: nil) isNil.
+	
+	self assert: (AbsoluteCoordinates readLatitudeString: 'N 0°0.0' ) equals: AbsoluteCoordinates zeroLatLon latitude .
+
+	
+]
+
+{ #category : #tests }
+AbsoluteCoordinatesTest >> testReadLatitude [
+
+	self assert: (AbsoluteCoordinates readLatitudeString: nil) isNil.
+	
+	self assert: (AbsoluteCoordinates readLatitudeString: 'N 0°0.0' ) equals: 0.0.
+
+	self assert: (AbsoluteCoordinates readLatitudeString: 'N 1°0.0' ) equals: 1.0.
+	self assert: (AbsoluteCoordinates readLatitudeString: 'S 1°0.0' ) equals: -1.0.
+	
+	self assert: (AbsoluteCoordinates readLatitudeString: 'N 1°0''0"' ) equals: 1.0.
+	self assert: (AbsoluteCoordinates readLatitudeString: 'S 1°0''0"' ) equals: -1.0.
+	self assert: (AbsoluteCoordinates readLatitudeString: 'N1°0''0"' ) equals: 1.0.
+	self assert: (AbsoluteCoordinates readLatitudeString: 'S1°0''0"' ) equals: -1.0.
+	self assert: (AbsoluteCoordinates readLatitudeString: 'N 1° 0'' 0" ' ) equals: 1.0.
+	self assert: (AbsoluteCoordinates readLatitudeString: 'S 1°  0 '' 0 " ' ) equals: -1.0.
+	self assert: (AbsoluteCoordinates readLatitudeString: 'N 49° 36.99') equals: 49.6165.
+]
+
+{ #category : #tests }
+AbsoluteCoordinatesTest >> testReadLongitude [
+	self assert: (AbsoluteCoordinates readLongitudeString: nil) isNil.
+	
+	self assert: (AbsoluteCoordinates readLongitudeString: 'E 0°0.0' ) equals: 0.0.
+
+	self assert: (AbsoluteCoordinates readLongitudeString: 'E 1°0.0' ) equals: 1.0.
+	self assert: (AbsoluteCoordinates readLongitudeString: 'W 1°0.0' ) equals: -1.0.
+	
+	self assert: (AbsoluteCoordinates readLongitudeString: 'E 1°0''0"' ) equals: 1.0.
+	self assert: (AbsoluteCoordinates readLongitudeString: 'W 1°0''0"' ) equals: -1.0.
+	
+	self assert: (AbsoluteCoordinates readLongitudeString: 'E1°0''0"' ) equals: 1.0.
+	self assert: (AbsoluteCoordinates readLongitudeString: 'W1°0''0"' ) equals: -1.0.
+	self assert: (AbsoluteCoordinates readLongitudeString: 'E 1° 0'' 0" ' ) equals: 1.0.
+	self assert: (AbsoluteCoordinates readLongitudeString: 'W 1°  0 '' 0 " ' ) equals: -1.0.
+]

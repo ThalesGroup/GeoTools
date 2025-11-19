@@ -330,6 +330,8 @@ AbsoluteCoordinates class >> readDMDString: aString [
 	_string := _string removeChar: $E.
 	_string := _string removeChar: $W.
 	_string := _string removeChar: $O.
+	_string := self in: _string removeChar: Character space.
+	_string := self in: _string removeChar: Character tab.
 
 	rs := ReadStream on: _string.
 	degree := (rs upTo: self charDegree) asNumber.
@@ -364,6 +366,10 @@ AbsoluteCoordinates class >> readDMSString: aString [
 	_string := _string removeChar: $E.
 	_string := _string removeChar: $W.
 	_string := _string removeChar: $O.
+
+	_string := self in: _string removeChar: Character space.
+	_string := self in: _string removeChar: Character tab.
+
 
 	rs := ReadStream on: _string.
 	degree := (rs upTo: self charDegree) ifNotEmpty: [ :e | e asNumber ] ifEmpty: [ 0 ].
