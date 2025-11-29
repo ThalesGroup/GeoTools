@@ -7,6 +7,12 @@ Class {
 	#category : #'GeoTools-Tests-Geodesic'
 }
 
+{ #category : #testing }
+GeodesicApproximativeFormulasTest class >> isDeprecated [ 
+
+	^ true
+]
+
 { #category : #accessing }
 GeodesicApproximativeFormulasTest >> geodesicFormulasClass [
 

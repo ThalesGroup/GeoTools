@@ -81,3 +81,29 @@ GeodesicFormulasTest >> testDistanceInMetersFromTo [
 
 	self assert: distance equals: 0
 ]
+
+{ #category : #tests }
+GeodesicFormulasTest >> testFastModeFormulas [
+
+	self assert: geodesicFormulas fastModeFormulas class equals: geodesicFormulas class defaultFastModeFormulasClass.
+	
+	geodesicFormulas fastModeFormulas: GeodesicVincentyFormulas new.
+	self assert: geodesicFormulas fastModeFormulas class equals: GeodesicVincentyFormulas.
+	
+	geodesicFormulas fastModeFormulas: nil.
+	self assert: geodesicFormulas fastModeFormulas class equals: geodesicFormulas class defaultFastModeFormulasClass.
+	
+]
+
+{ #category : #tests }
+GeodesicFormulasTest >> testFastModeThresholdInRadians [
+
+	self assert: geodesicFormulas fastModeThresholdInRadians equals: geodesicFormulas class defaultFastModeThresholdInRadians.
+	
+	geodesicFormulas fastModeThresholdInRadians: 1e-12.
+	self assert: geodesicFormulas fastModeThresholdInRadians equals: 1e-12.
+	
+	geodesicFormulas fastModeThresholdInRadians: nil.
+	self assert: geodesicFormulas fastModeThresholdInRadians equals: geodesicFormulas class defaultFastModeThresholdInRadians.
+	
+]

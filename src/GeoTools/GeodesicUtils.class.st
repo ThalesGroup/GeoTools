@@ -5,6 +5,9 @@ Please use this class ponctually, if you need several/chained processing reuse a
 Class {
 	#name : #GeodesicUtils,
 	#superclass : #Object,
+	#classInstVars : [
+		'formulas'
+	],
 	#category : #'GeoTools-Geodesic'
 }
 
@@ -13,7 +16,10 @@ GeodesicUtils class >> absoluteCoordinatesAlongGeodesicFrom: aFromAbsoluteCoordi
 	"Return a point at fraction t (0 <= t <= 1) along the geodesic from 'from' to 'to'.
 	Uses Vincenty inverse to get initial azimuth and distance, then Vincenty direct."
 
-	^ GeodesicVincentyFormulas new absoluteCoordinatesAlongGeodesicFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate atFraction: aFraction
+	^ self formulas
+		  absoluteCoordinatesAlongGeodesicFrom: aFromAbsoluteCoordinate
+		  to: aToAbsoluteCoordinate
+		  atFraction: aFraction
 ]
 
 { #category : #'to remove as soon as possible' }
@@ -48,7 +54,7 @@ GeodesicUtils class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distance: 
 GeodesicUtils class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distanceInMeters: aDistanceInM azimuthInRadians: anAzimuthInRadians [
 	"default using Vincenty"
 
-	^ GeodesicVincentyFormulas new
+	^ self formulas
 		  absoluteCoordinatesFrom: anAbsoluteCoordinates
 		  distanceInMeters: aDistanceInM
 		  azimuthInRadians: anAzimuthInRadians
@@ -71,6 +77,8 @@ GeodesicUtils class >> absoluteCoordinatesFrom: anAbsoluteCoordinates distanceIn
 { #category : #'to remove as soon as possible' }
 GeodesicUtils class >> absoluteCoordinatesWithVincentyFrom: anAbsoluteCoordinates distanceInM: distance azimuthInRadians: azimuth [
     | a f b lat1 lon1 alpha1 sinAlpha1 cosAlpha1 u1 sinU1 cosU1 sigma1 sinAlpha cosSqAlpha uSq A B sigma sigmaPrev iterLimit cosSigma sinSigma lat2 deltaSigma C L lon2 lambda cos2SigmaM tmp |
+
+	self deprecated:'user absoluteCoordinatesFrom: anAbsoluteCoordinates distanceInMeters: aDistanceInM azimuthInRadians: anAzimuthInRadians'.
 
     anAbsoluteCoordinates isValid ifFalse: [ ^ nil ].
     distance = 0 ifTrue: [ ^ anAbsoluteCoordinates copy ].
@@ -241,7 +249,7 @@ GeodesicUtils class >> approximateProjectedRadiusInMCenter: anAbsoluteCoordinate
 { #category : #utilities }
 GeodesicUtils class >> azimuthInRadiansFrom: startAbsoluteCoordinate to: endAbsoluteCoordinate [
 
-	^ GeodesicVincentyFormulas new
+	^ self formulas
 		  azimuthInRadiansFrom: startAbsoluteCoordinate
 		  to: endAbsoluteCoordinate
 ]
@@ -251,6 +259,8 @@ GeodesicUtils class >> azimuthInRadiansWithVincentyPreciseFrom: startAbsoluteCoo
 	"Compute azimut between two Geodesic (lat/long) coordinates and return azimuth in radians"
 
 	| d5 d6 d7 d8 d9 d10 d11 d12 d14 d13 d15 d16 d17 d19 d20 d21 d22 d23 d24 d25 d26 d27 d28 break |
+	
+	self deprecated:'use azimuthInRadiansFrom: startAbsoluteCoordinate to: endAbsoluteCoordinate'.
 	
 	(startAbsoluteCoordinate isValid not or:[endAbsoluteCoordinate isValid not]) ifTrue:[ ^ 0 ].
 	
@@ -316,6 +326,14 @@ GeodesicUtils class >> checkAngle: anAngleInRadians isBetween: aStartAngleInRadi
 		  and: anEndAngleInRadians
 ]
 
+{ #category : #cleanup }
+GeodesicUtils class >> cleanUp [
+
+	formulas := nil.
+
+	super cleanUp
+]
+
 { #category : #'to remove as soon as possible' }
 GeodesicUtils class >> computeECEFXYZ: anOriginAbsoluteCoordinates fromLocalXYZ: aLocalCartesianCoordinates [
 
@@ -376,9 +394,15 @@ GeodesicUtils class >> convertGeodesicToDistanceInMeterFrom: startAbsoluteCoordi
 { #category : #utilities }
 GeodesicUtils class >> distanceInMetersFrom: startAbsoluteCoordinate to: endAbsoluteCoordinate [
 
-	^ GeodesicVincentyFormulas new
+	^ self formulas
 		  distanceInMetersFrom: startAbsoluteCoordinate
 		  to: endAbsoluteCoordinate
+]
+
+{ #category : #accessing }
+GeodesicUtils class >> formulas [
+
+	^ formulas ifNil: [ formulas := GeodesicVincentyFormulas new ]
 ]
 
 { #category : #utilities }
