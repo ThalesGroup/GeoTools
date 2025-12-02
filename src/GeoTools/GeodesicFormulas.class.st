@@ -1,8 +1,26 @@
 Class {
 	#name : #GeodesicFormulas,
 	#superclass : #Object,
+	#instVars : [
+		'fastModeFormulas',
+		'fastModeThresholdInRadians'
+	],
 	#category : #'GeoTools-Geodesic'
 }
+
+{ #category : #accessing }
+GeodesicFormulas class >> defaultFastModeFormulasClass [
+		
+	^ GeodesicHaversineFormulas 
+]
+
+{ #category : #accessing }
+GeodesicFormulas class >> defaultFastModeThresholdInRadians [
+	"Threshold below which Haversine formula is used instead of other formula (i.e. Vincenty) faster but less precise.
+	1e-4 radians ≈ 640 meters at equator"
+	
+	^ 1e-4
+]
 
 { #category : #tools }
 GeodesicFormulas >> absoluteCoordinatesAlongGeodesicFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate atFraction: aFraction [
@@ -28,19 +46,46 @@ GeodesicFormulas >> distanceInMetersFrom: aFromAbsoluteCoordinate to: anEndAbsol
 	self subclassResponsibility 
 ]
 
-{ #category : #haversine }
-GeodesicFormulas >> haversineDistanceFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate [
-	"Haversine formulas to compute distance from two positions of a big circle - efficient to compute distance around the equator"
-	"sources: https://fr.wikipedia.org/wiki/Formule_de_haversine"
-	
-	| radius deltaLat deltaLon a c |	
-	radius := WGS84 semiMajorAxisInMeters.
-	deltaLat := aToAbsoluteCoordinate latitudeInRadians - aFromAbsoluteCoordinate latitudeInRadians.
-	deltaLon := aToAbsoluteCoordinate longitudeInRadians - aFromAbsoluteCoordinate longitudeInRadians.
-	
-	a := ((deltaLat / 2) sin squared) 
-			+ (aFromAbsoluteCoordinate latitudeInRadians cos * aToAbsoluteCoordinate latitudeInRadians cos * ((deltaLon / 2) sin squared)).
-	c := 2 * (a sqrt arcTan: ((1 - a) sqrt)).
+{ #category : #'tools - fast mode' }
+GeodesicFormulas >> fastDistanceInMetersFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate [
 
-	^ radius * c
+	^ self fastModeFormulas distanceInMetersFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate
+]
+
+{ #category : #'fast mode' }
+GeodesicFormulas >> fastModeFormulas [
+
+	^ fastModeFormulas ifNil: [
+		  fastModeFormulas := self class defaultFastModeFormulasClass new ]
+]
+
+{ #category : #'fast mode' }
+GeodesicFormulas >> fastModeFormulas: anObject [
+
+	fastModeFormulas := anObject
+]
+
+{ #category : #'fast mode' }
+GeodesicFormulas >> fastModeThresholdInRadians [
+
+	^ fastModeThresholdInRadians ifNil: [
+			  fastModeThresholdInRadians := self class
+				                                defaultFastModeThresholdInRadians ]
+]
+
+{ #category : #'fast mode' }
+GeodesicFormulas >> fastModeThresholdInRadians: anObject [
+
+	fastModeThresholdInRadians := anObject
+]
+
+{ #category : #'fast mode' }
+GeodesicFormulas >> haversineDistanceFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate [
+	
+	self 
+		deprecated: 'Use #fastDistanceInMetersFrom:to: instead'
+		transformWith: '`@receiver haversineDistanceFrom: `@arg1 to: `@arg2' 
+		-> '`@receiver fastDistanceInMetersFrom: `@arg1 to: `@arg2'.
+	
+	^ self fastDistanceInMetersFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate
 ]

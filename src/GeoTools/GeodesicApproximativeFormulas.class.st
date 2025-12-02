@@ -4,6 +4,12 @@ Class {
 	#category : #'GeoTools-Geodesic'
 }
 
+{ #category : #testing }
+GeodesicApproximativeFormulas class >> isDeprecated [ 
+
+	^ true
+]
+
 { #category : #tools }
 GeodesicApproximativeFormulas >> absoluteCoordinatesAlongGeodesicFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate atFraction: aFraction [
 

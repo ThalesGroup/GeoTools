@@ -228,70 +228,91 @@ GeodesicVincentyFormulas >> azimuthInRadiansWithVincentyPreciseFrom: startAbsolu
 { #category : #tools }
 GeodesicVincentyFormulas >> distanceInMetersFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate [
 	"Vincenty algorithm to compute distance between two Geodesic (lat/long) coordinates and return it in meter"
+
 	"https://en.wikipedia.org/wiki/Vincenty%27s_formulae"
 
-	| u1 u2 cosU1 cosU2 sinU1 sinU2 diffLong lambda sinLambda cosLambda d16 d17 d18 d19 lambdaP sinSigma cosSigma sigma cosSqAlpha cos2SigmaM d27 d28 d29 d30 d31 d32 l sinAlpha noIterations |
+	| u1 u2 cosU1 cosU2 sinU1 sinU2 diffLong lambda sinLambda cosLambda d16 d17 d18 d19 lambdaP sinSigma cosSigma sigma cosSqAlpha cos2SigmaM d27 d28 d29 d30 d31 d32 l sinAlpha noIterations latDiff lonDiff |
+	(aFromAbsoluteCoordinate isValid not or: [
+		 aToAbsoluteCoordinate isValid not ]) ifTrue: [ ^ 0 ].
 
-	(aFromAbsoluteCoordinate isValid not or:[aToAbsoluteCoordinate isValid not]) ifTrue:[ ^ 0 ].
+	"Early exit for very close points (use faster Haversine)"
+	latDiff := (aFromAbsoluteCoordinate latitudeInRadians
+	            - aToAbsoluteCoordinate latitudeInRadians) abs.
+	lonDiff := (aFromAbsoluteCoordinate longitudeInRadians
+	            - aToAbsoluteCoordinate longitudeInRadians) abs.
+	(latDiff < self fastModeThresholdInRadians and: [
+		 lonDiff < self fastModeThresholdInRadians ]) ifTrue: [
+			^ self
+				  fastDistanceInMetersFrom: aFromAbsoluteCoordinate
+				  to: aToAbsoluteCoordinate ].
 
-	(aFromAbsoluteCoordinate longitudeInRadians closeTo: aToAbsoluteCoordinate longitudeInRadians precision: self precision) ifTrue: 
-		[ (aFromAbsoluteCoordinate latitudeInRadians closeTo: aToAbsoluteCoordinate latitudeInRadians precision: self precision)
-			ifTrue: [ ^ self haversineDistanceFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate ]
-	].
-	 
-	u1 := ((1 - WGS84 flattening) * (aFromAbsoluteCoordinate latitudeInRadians tan)) arcTan.
-	u2 := ((1 - WGS84 flattening) * (aToAbsoluteCoordinate latitudeInRadians tan)) arcTan.
+	u1 := (1 - WGS84 flattening
+	       * aFromAbsoluteCoordinate latitudeInRadians tan) arcTan.
+	u2 := (1 - WGS84 flattening
+	       * aToAbsoluteCoordinate latitudeInRadians tan) arcTan.
 	cosU1 := u1 cos.
 	cosU2 := u2 cos.
 	sinU1 := u1 sin.
 	sinU2 := u2 sin.
 	d28 := WGS84 flattening / 16.
-	diffLong := aToAbsoluteCoordinate longitudeInRadians - aFromAbsoluteCoordinate longitudeInRadians.
+	diffLong := aToAbsoluteCoordinate longitudeInRadians
+	            - aFromAbsoluteCoordinate longitudeInRadians.
 	lambda := diffLong.
 	"d20 := 2 * d12."
 	lambdaP := 0.0.
-	
+
 	noIterations := true.
 	l := 1.
-	
-	[((lambda - lambdaP) abs >= self precision and: [ l < (self iterationsLimit) ])] whileTrue: [ 
-		noIterations := false.
-		lambdaP := lambda.
-		sinLambda := lambda sin.
-		cosLambda := lambda cos.
-		d16 := cosU2 * sinLambda.
-		d18 := (cosU1 * sinU2) - (sinU1 * cosU2 * cosLambda).
-		sinSigma := ((d16 * d16) + (d18 * d18)) sqrt.
-		sinSigma = 0 ifTrue: [ ^ 0 ].
-		cosSigma := (sinU1 * sinU2) + (cosU1 * cosU2 * cosLambda).
-		sigma := sinSigma arcTan: cosSigma. "ok equivalent to (sinSigma @ cosSigma) theta."
-		sinAlpha := (cosU1 * cosU2 * sinLambda) / sinSigma.
-		cosSqAlpha := 1 - (sinAlpha squared).
-		cos2SigmaM := cosSqAlpha < self precision
-			ifTrue: [ 0 ]
-			ifFalse: [ cosSigma - ((2 * sinU1 * sinU2) / cosSqAlpha) ].
-		d27 := d28 * cosSqAlpha * (4 + (WGS84 flattening * (4 - (3 * cosSqAlpha)))).
-		d16 := cos2SigmaM + (d27 * cosSigma * (-1 + (2 * cos2SigmaM * cos2SigmaM))).
-		"d18 := (1 - d27) * WGS84 flattening * cosSqAlpha * (sigma + (d27 * sinSigma * d16))."
-		d18 := (1 - d27) * WGS84 flattening * sinAlpha * (sigma + (d27 * sinSigma * d16)).
-		lambda := diffLong + d18.
-		sinLambda := lambda sin.
-		cosLambda := lambda cos.
-		l := l + 1. 
-	].
-	
-	noIterations ifTrue:[
-		"limit case, invoque haversine formula by default"	
-		^ self haversineDistanceFrom: aFromAbsoluteCoordinate to: aToAbsoluteCoordinate
-	].
-	
+
+	[
+		(lambda - lambdaP) abs >= self precision and: [
+			l < self iterationsLimit ] ] whileTrue: [
+			noIterations := false.
+			lambdaP := lambda.
+			sinLambda := lambda sin.
+			cosLambda := lambda cos.
+			d16 := cosU2 * sinLambda.
+			d18 := cosU1 * sinU2 - (sinU1 * cosU2 * cosLambda).
+			sinSigma := (d16 * d16 + (d18 * d18)) sqrt.
+			sinSigma = 0 ifTrue: [ ^ 0 ].
+			cosSigma := sinU1 * sinU2 + (cosU1 * cosU2 * cosLambda).
+			sigma := sinSigma arcTan: cosSigma. "ok equivalent to (sinSigma @ cosSigma) theta."
+			sinAlpha := cosU1 * cosU2 * sinLambda / sinSigma.
+			cosSqAlpha := 1 - sinAlpha squared.
+			cos2SigmaM := cosSqAlpha < self precision
+				              ifTrue: [ 0 ]
+				              ifFalse: [
+				              cosSigma - (2 * sinU1 * sinU2 / cosSqAlpha) ].
+			d27 := d28 * cosSqAlpha
+			       * (4 + (WGS84 flattening * (4 - (3 * cosSqAlpha)))).
+			d16 := cos2SigmaM
+			       + (d27 * cosSigma * (-1 + (2 * cos2SigmaM * cos2SigmaM))).
+			"d18 := (1 - d27) * WGS84 flattening * cosSqAlpha * (sigma + (d27 * sinSigma * d16))."
+			d18 := 1 - d27 * WGS84 flattening * sinAlpha
+			       * (sigma + (d27 * sinSigma * d16)).
+			lambda := diffLong + d18.
+			sinLambda := lambda sin.
+			cosLambda := lambda cos.
+			l := l + 1 ].
+
+	noIterations ifTrue: [ "limit case, invoque haversine formula by default"
+			^ self
+				  fastDistanceInMetersFrom: aFromAbsoluteCoordinate
+				  to: aToAbsoluteCoordinate ].
+
 	d29 := cosSqAlpha * WGS84 eccentricitySquared.
-	d30 := 1 + ((d29 / 16384) * (4096 + (d29 * (-768 + (d29 * (320 - (175 * d29))))))).
-	d31 := (d29 / 1024) * (256 + (d29 * (-128 + (d29 * (74 - (47 * d29)))))).
-	d17 := cosSigma * (-1 + (2 * (cos2SigmaM squared))).
-	d19 := cos2SigmaM * (-3 + (4 * sinSigma squared)) * (-3 + (4 * cos2SigmaM squared)).
-	d32 := d31 * sinSigma * (cos2SigmaM + ((d31 / 4) * (d17 - ((d31 / 6) * d19)))).
-	
+	d30 := 1
+	       +
+	       (d29 / 16384
+	        * (4096 + (d29 * (-768 + (d29 * (320 - (175 * d29))))))).
+	d31 := d29 / 1024
+	       * (256 + (d29 * (-128 + (d29 * (74 - (47 * d29)))))).
+	d17 := cosSigma * (-1 + (2 * cos2SigmaM squared)).
+	d19 := cos2SigmaM * (-3 + (4 * sinSigma squared))
+	       * (-3 + (4 * cos2SigmaM squared)).
+	d32 := d31 * sinSigma
+	       * (cos2SigmaM + (d31 / 4 * (d17 - (d31 / 6 * d19)))).
+
 	^ WGS84 semiMinorAxisInMeters * d30 * (sigma - d32)
 ]
 
