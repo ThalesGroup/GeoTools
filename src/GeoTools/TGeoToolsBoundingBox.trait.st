@@ -90,6 +90,15 @@ TGeoToolsBoundingBox >> centerAbsoluteCoordinates [
 		  longitudeInDegrees: longitude
 ]
 
+{ #category : #testing }
+TGeoToolsBoundingBox >> isValid [
+
+	^ (self topLeftAbsoluteCoordinates notNil and: [
+		   self topLeftAbsoluteCoordinates isValid ]) and: [
+			  self bottomRightAbsoluteCoordinates notNil and: [
+				  self bottomRightAbsoluteCoordinates isValid ] ]
+]
+
 { #category : #accessing }
 TGeoToolsBoundingBox >> leftLongitudeInDegrees [
 
