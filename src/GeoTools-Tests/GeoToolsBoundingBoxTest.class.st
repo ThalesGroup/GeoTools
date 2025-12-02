@@ -154,6 +154,21 @@ GeoToolsBoundingBoxTest >> testCenterAbsoluteCoordinates [
 ]
 
 { #category : #tests }
+GeoToolsBoundingBoxTest >> testIsValid [
+
+	self deny: boundingBox isValid.
+	
+	self setUpZeroBox.
+	self assert: boundingBox isValid.
+	
+	self setUpSmallBox.
+	self assert: boundingBox isValid.
+	
+	self setUpTopRightSmallBox.
+	self assert: boundingBox isValid
+]
+
+{ #category : #tests }
 GeoToolsBoundingBoxTest >> testLeftLongitudeInDegrees [
 
 	self assert: boundingBox leftLongitudeInDegrees isNil.
