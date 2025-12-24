@@ -28,8 +28,6 @@ AbsoluteCoordinatesTest >> testAbsoluteCoordinates [
 	self assert: coord latitude isNil.
 	self assert: coord longitudeInDegrees isNil.
 	self assert: coord longitude isNil.
-	self assert: coord altitudeInMeters isNil.
-	self assert: coord altitude isNil.
 	
 	coord latitudeInDegrees: 45.
 	self assert: coord isEmpty equals: false.
@@ -48,8 +46,6 @@ AbsoluteCoordinatesTest >> testAbsoluteCoordinates [
 	coord altitudeInMeters: 100.
 	self assert: coord isEmpty equals: false.
 	self assert: coord isValid equals: true.
-	self assert: coord altitudeInMeters equals: 100.
-	self assert: coord altitude equals: (100 units: #meters).
 ]
 
 { #category : #tests }
@@ -203,6 +199,42 @@ AbsoluteCoordinatesTest >> testAbsoluteCoordinatesRandom [
 ]
 
 { #category : #tests }
+AbsoluteCoordinatesTest >> testAltitude [
+
+	self assert: absCoord altitude isNil.
+
+	absCoord altitudeInMeters: 100.
+	self assert: absCoord altitude equals: (100 units: #meters).
+
+	absCoord altitudeInMeters: 0.
+	self assert: absCoord altitude equals: (0 units: #meters).
+
+	absCoord altitudeInMeters: -100.
+	self assert: absCoord altitude equals: (-100 units: #meters).
+
+	absCoord altitudeInMeters: nil.
+	self assert: absCoord altitude isNil
+]
+
+{ #category : #tests }
+AbsoluteCoordinatesTest >> testAltitudeInMeters [
+
+	self assert: absCoord altitudeInMeters isNil.
+
+	absCoord altitudeInMeters: 100.
+	self assert: absCoord altitudeInMeters equals: 100.
+	
+	absCoord altitudeInMeters: 0.
+	self assert: absCoord altitudeInMeters equals: 0.
+
+	absCoord altitudeInMeters: -100.
+	self assert: absCoord altitudeInMeters equals: -100.
+
+	absCoord altitudeInMeters: nil.
+	self assert: absCoord altitudeInMeters isNil
+]
+
+{ #category : #tests }
 AbsoluteCoordinatesTest >> testAsLatLonDegreesPoint [
 
 	| point |
@@ -268,6 +300,24 @@ AbsoluteCoordinatesTest >> testFromStringLatitudeLongitude [
 	
 	self assert: (AbsoluteCoordinates fromStringLatitude: 'N0°02''0""' longitude: 'E0°0''0""') equals: (AbsoluteCoordinates latitudeInDegrees: 0.03333333333333333 longitudeInDegrees: 0).
 	self assert: (AbsoluteCoordinates fromStringLatitude: 'S0°02''0''''' longitude: 'E0°0''0''''') equals: (AbsoluteCoordinates latitudeInDegrees: -0.03333333333333333 longitudeInDegrees: 0).
+]
+
+{ #category : #tests }
+AbsoluteCoordinatesTest >> testIsBelowSeaLevel [
+
+	self deny: absCoord isBelowSeaLevel.
+
+	absCoord altitudeInMeters: 100.
+	self deny: absCoord isBelowSeaLevel.
+	
+	absCoord altitudeInMeters: 0.
+	self deny: absCoord isBelowSeaLevel.
+
+	absCoord altitudeInMeters: -100.
+	self assert: absCoord isBelowSeaLevel.
+
+	absCoord altitudeInMeters: nil.
+	self deny: absCoord isBelowSeaLevel.
 ]
 
 { #category : #tests }

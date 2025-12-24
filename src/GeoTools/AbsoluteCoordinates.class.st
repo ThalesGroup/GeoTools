@@ -591,6 +591,12 @@ AbsoluteCoordinates >> copy [
 ]
 
 { #category : #testing }
+AbsoluteCoordinates >> isBelowSeaLevel [
+
+	^ self altitudeInMeters notNil and: [ self altitudeInMeters < 0 ]
+]
+
+{ #category : #testing }
 AbsoluteCoordinates >> isEmpty [
 
 	^ self latitudeInDegrees isNil and: [ self longitudeInDegrees isNil and: [ self altitudeInMeters isNil ] ]
