@@ -336,6 +336,66 @@ AbsoluteCoordinatesTest >> testIsZero [
 ]
 
 { #category : #tests }
+AbsoluteCoordinatesTest >> testPrintAltitudeString [
+
+	self
+		assert: absCoord printAltitudeString
+		equals: 'Not valid altitude'.
+		
+	self
+		assert: AbsoluteCoordinates frBrest printAltitudeString
+		equals: '52m'.
+		
+	self
+		assert: AbsoluteCoordinates zero printAltitudeString
+		equals: '0m'.
+		
+	self
+		assert: (AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0) printAltitudeString
+		equals: 'Not valid altitude'.
+]
+
+{ #category : #tests }
+AbsoluteCoordinatesTest >> testPrintLatitudeString [
+
+	self
+		assert: absCoord printLatitudeString
+		equals: 'Not valid latitude'.
+		
+	self
+		assert: AbsoluteCoordinates frBrest printLatitudeString
+		equals: '48°23''22"N'.
+		
+	self
+		assert: AbsoluteCoordinates zero printLatitudeString
+		equals: '00°00''00"N'.
+		
+	self
+		assert: (AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0) printLatitudeString
+		equals: '00°00''00"N'.
+]
+
+{ #category : #tests }
+AbsoluteCoordinatesTest >> testPrintLongitudeString [
+
+	self
+		assert: absCoord printLongitudeString
+		equals: 'Not valid longitude'.
+		
+	self
+		assert: AbsoluteCoordinates frBrest printLongitudeString
+		equals: '004°29''00"W'.
+		
+	self
+		assert: AbsoluteCoordinates zero printLongitudeString
+		equals: '000°00''00"E'.
+		
+	self
+		assert: (AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0) printLongitudeString
+		equals: '000°00''00"E'.
+]
+
+{ #category : #tests }
 AbsoluteCoordinatesTest >> testPrintOn [
 
 	self
