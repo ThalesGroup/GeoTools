@@ -739,11 +739,13 @@ AbsoluteCoordinates >> normalizeLatitudeInDegrees: aValueInDegrees [
 
 { #category : #printing }
 AbsoluteCoordinates >> printOn: aStream [
-	super printOn: aStream.
-	aStream
-		nextPutAll: ' lat ', (self latitudeInDegrees ifNil:['--']) asString,'°';
-		nextPutAll: ' lon ', (self longitudeInDegrees ifNil:['--']) asString,'°';
-		nextPutAll: ' alt ', (self altitudeInMeters ifNil:['--']) asString,'m'
+
+	self isValid
+		ifFalse: [ aStream nextPutAll: 'No valid coordinates' ]
+		ifTrue: [
+				AbstractAbsoluteCoordinatesPrinter default
+					printAbsoluteCoordinates: self
+					on: aStream ]
 ]
 
 { #category : #accessing }

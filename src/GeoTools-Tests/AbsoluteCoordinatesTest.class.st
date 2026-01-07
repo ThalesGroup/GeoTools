@@ -349,6 +349,28 @@ AbsoluteCoordinatesTest >> testIsZero [
 ]
 
 { #category : #tests }
+AbsoluteCoordinatesTest >> testPrintOn [
+
+	
+
+	self
+		assert: (String streamContents: [ :str | absCoord printOn: str ])
+		equals: 'No valid coordinates'.
+		
+	self
+		assert: (String streamContents: [ :str | AbsoluteCoordinates frBrest printOn: str ])
+		equals: '48°23''22"N 004°29''00"W 52m'.
+		
+	self
+		assert: (String streamContents: [ :str | AbsoluteCoordinates zero printOn: str ])
+		equals: '00°00''00"N 000°00''00"E 0m'.
+		
+	self
+		assert: (String streamContents: [ :str | (AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0) printOn: str ])
+		equals: '00°00''00"N 000°00''00"E'.
+]
+
+{ #category : #tests }
 AbsoluteCoordinatesTest >> testRandom [
 
 	| coordinates |
