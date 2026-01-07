@@ -24,6 +24,34 @@ GeodesicUtilsTest >> tearDown [
 ]
 
 { #category : #tests }
+GeodesicUtilsTest >> testAbsoluteCoordinatesAlongGeodesicFromToAtFraction [
+
+	| coordinates |
+	coordinates := GeodesicUtils
+		               absoluteCoordinatesAlongGeodesicFrom:
+		               AbsoluteCoordinates zero
+		               to: AbsoluteCoordinates zero
+		               atFraction: 0.5.
+
+	self assert: coordinates class identicalTo: AbsoluteCoordinates
+]
+
+{ #category : #tests }
+GeodesicUtilsTest >> testAbsoluteCoordinatesFromDistanceAzimuth [
+	"Déplacement vers l’Est sur 1000 m depuis l’équateur (0°, 0°) à azimut 90°"
+	
+    | start azimuth distance coord |
+    
+    start := AbsoluteCoordinates zero.
+    azimuth := 90 degreesToRadians radians.
+    distance := 1000 meters.
+
+    coord := GeodesicUtils absoluteCoordinatesFrom: start distance: distance azimuth: azimuth.
+    self assert: (coord latitudeInDegrees closeTo: 0).
+    self assert: (coord longitudeInDegrees closeTo: 0.009013373 precision: 0.0001)
+]
+
+{ #category : #tests }
 GeodesicUtilsTest >> testAbsoluteCoordinatesFromDistanceInMAzimuthInRadiansEast [
 
 	| startCoord distance azimuth result expectedLat expectedLong tolerance |
@@ -198,6 +226,36 @@ GeodesicUtilsTest >> testAbsoluteCoordinatesFromDistanceInMetersAzimuthInRadians
 ]
 
 { #category : #tests }
+GeodesicUtilsTest >> testAzimuthFromTo [
+
+	| from to anAngle |
+	
+	from := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0.
+	to := AbsoluteCoordinates latitudeInDegrees: 10 longitudeInDegrees: 0.
+		
+	anAngle := GeodesicUtils azimuthFrom: from to: to.
+	self assert: ((anAngle convertTo: Unit deg) value closeTo: 0 precision: 1e-10).
+	
+	from := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0.
+	to := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 10.
+		
+	anAngle := GeodesicUtils azimuthFrom: from to: to.
+	self assert: ((anAngle convertTo: Unit deg) value closeTo: 90 precision: 1e-10).
+	
+	from := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0.
+	to := AbsoluteCoordinates latitudeInDegrees: -10 longitudeInDegrees: 0.
+		
+	anAngle := GeodesicUtils azimuthFrom: from to: to.
+	self assert: ((anAngle convertTo: Unit deg) value closeTo: 180 precision: 1e-10).
+	
+	from := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: 0.
+	to := AbsoluteCoordinates latitudeInDegrees: 0 longitudeInDegrees: -10.
+		
+	anAngle := GeodesicUtils azimuthFrom: from to: to.
+	self assert: ((anAngle convertTo: Unit deg) value closeTo: 270 precision: 1e-10).
+]
+
+{ #category : #tests }
 GeodesicUtilsTest >> testAzimuthInRadiansFromTo [
 
 	| from to angleInRadians |
@@ -260,7 +318,33 @@ GeodesicUtilsTest >> testAzimuthInRadiansFromTo3 [
 ]
 
 { #category : #tests }
-GeodesicUtilsTest >> testDistanceInMetersFromTwoPoints [
+GeodesicUtilsTest >> testDistanceFromTo [
+	| originPoint endPoint distance |
+	
+	originPoint := AbsoluteCoordinates latitudeInDegrees: 50.06638889 longitudeInDegrees: -5.71472222.
+	endPoint := AbsoluteCoordinates latitudeInDegrees: 58.64388889 longitudeInDegrees: -3.07.
+	distance := GeodesicUtils distanceFrom: originPoint to: endPoint.
+	self assert: ((distance convertTo: Unit meter) value closeTo: 969918.64 precision: 1e-1).
+
+	"0 distance"
+	originPoint := AbsoluteCoordinates latitudeInDegrees: 42.0 longitudeInDegrees: 3.0.
+	self assert: (GeodesicUtils distanceFrom: originPoint to: originPoint) equals: 0.
+	
+	"meridian line"
+	originPoint := AbsoluteCoordinates latitudeInDegrees: 10.0 longitudeInDegrees: 0.0.
+	endPoint := AbsoluteCoordinates latitudeInDegrees: 20.0 longitudeInDegrees: 0.0.
+	distance := GeodesicUtils distanceFrom: originPoint to: endPoint.
+	self assert: ((distance convertTo: Unit meter) value closeTo: 1.1131949079327355e6 precision: 1e-6). "Approx. 1111949.266 m between latitudes of 10°"
+	
+	"equatorial line"
+	originPoint := AbsoluteCoordinates latitudeInDegrees: 0.0 longitudeInDegrees: 0.0.
+	endPoint := AbsoluteCoordinates latitudeInDegrees: 0.0 longitudeInDegrees: 1.0.
+	distance := GeodesicUtils distanceFrom: originPoint to: endPoint.
+	self assert: ((distance convertTo: Unit meter) value closeTo: 111319.5 precision: 1e-1). "Approx. 111319.5 m"
+]
+
+{ #category : #tests }
+GeodesicUtilsTest >> testDistanceInMetersFromTo [
 	| originPoint endPoint distanceInM |
 	
 	originPoint := AbsoluteCoordinates latitudeInDegrees: 50.06638889 longitudeInDegrees: -5.71472222.
@@ -286,7 +370,7 @@ GeodesicUtilsTest >> testDistanceInMetersFromTwoPoints [
 ]
 
 { #category : #tests }
-GeodesicUtilsTest >> testDistanceInMetersFromTwoPoints2 [
+GeodesicUtilsTest >> testDistanceInMetersFromTo2 [
 
 	| origin end dist |
 	"classic"
@@ -309,83 +393,224 @@ GeodesicUtilsTest >> testDistanceInMetersFromTwoPoints2 [
 ]
 
 { #category : #tests }
-GeodesicUtilsTest >> testIsAzimuthTowardsArea [
+GeodesicUtilsTest >> testFormulas [
 
-	| originPointAbsCoord isAzTowardsArea listPointsArea headingInDegree|
-	
-	originPointAbsCoord := AbsoluteCoordinates latitudeInDegrees: 48.28275 longitudeInDegrees: -4.70553.
-	
+	self
+		assert: GeodesicUtils formulas class
+		equals: GeodesicVincentyFormulas
+]
+
+{ #category : #tests }
+GeodesicUtilsTest >> testIsAzimuthTowardsAreaFromAzimuthInDegreesArea [
+
+	| originPointAbsCoord isAzTowardsArea listPointsArea headingInDegree |
+	originPointAbsCoord := AbsoluteCoordinates
+		                       latitudeInDegrees: 48.28275
+		                       longitudeInDegrees: -4.70553.
+
 	listPointsArea := OrderedCollection new.
-	listPointsArea add: (AbsoluteCoordinates latitudeInDegrees: 48.32676 longitudeInDegrees: -4.68284).
-	listPointsArea add: (AbsoluteCoordinates latitudeInDegrees: 48.33995 longitudeInDegrees: -4.65976).
-	listPointsArea add: (AbsoluteCoordinates latitudeInDegrees: 48.3117 longitudeInDegrees: -4.60466).
-	listPointsArea add: (AbsoluteCoordinates latitudeInDegrees: 48.29603 longitudeInDegrees: -4.62295).
-	
+	listPointsArea add: (AbsoluteCoordinates
+			 latitudeInDegrees: 48.32676
+			 longitudeInDegrees: -4.68284).
+	listPointsArea add: (AbsoluteCoordinates
+			 latitudeInDegrees: 48.33995
+			 longitudeInDegrees: -4.65976).
+	listPointsArea add: (AbsoluteCoordinates
+			 latitudeInDegrees: 48.3117
+			 longitudeInDegrees: -4.60466).
+	listPointsArea add: (AbsoluteCoordinates
+			 latitudeInDegrees: 48.29603
+			 longitudeInDegrees: -4.62295).
+
 	headingInDegree := 45.
 
-	isAzTowardsArea := GeodesicUtils isAzimuthTowardsAreaFrom: originPointAbsCoord azimuth: headingInDegree area: listPointsArea.
-	
-	self assert: isAzTowardsArea equals: true.
-	
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInDegrees: headingInDegree
+		                   area: listPointsArea.
+
+	self assert: isAzTowardsArea.
+
 	originPointAbsCoord latitudeInDegrees: 48.29603.
-	
-	isAzTowardsArea := GeodesicUtils isAzimuthTowardsAreaFrom: originPointAbsCoord azimuth: headingInDegree area: listPointsArea.
-	
-	self assert: isAzTowardsArea equals: true.
-	
+
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInDegrees: headingInDegree
+		                   area: listPointsArea.
+
+	self assert: isAzTowardsArea.
+
 	headingInDegree := -45.
-	
-	isAzTowardsArea := GeodesicUtils isAzimuthTowardsAreaFrom: originPointAbsCoord azimuth: headingInDegree area: listPointsArea.
-	
-	self assert: isAzTowardsArea equals: false.
+
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInDegrees: headingInDegree
+		                   area: listPointsArea.
+
+	self deny: isAzTowardsArea.
 
 	headingInDegree := 90.
-	
-	isAzTowardsArea := GeodesicUtils isAzimuthTowardsAreaFrom: originPointAbsCoord azimuth: headingInDegree area: listPointsArea.
-	
-	self assert: isAzTowardsArea equals: true.
-	
-	originPointAbsCoord := AbsoluteCoordinates latitudeInDegrees: 48.34 longitudeInDegrees: -4.62.
-	headingInDegree := 225.
-	
-	isAzTowardsArea := GeodesicUtils isAzimuthTowardsAreaFrom: originPointAbsCoord azimuth: headingInDegree area: listPointsArea.
-	
-	self assert: isAzTowardsArea equals: true.
-	
-	headingInDegree := 180.
-	
-	isAzTowardsArea := GeodesicUtils isAzimuthTowardsAreaFrom: originPointAbsCoord azimuth: headingInDegree area: listPointsArea.
-	
-	self assert: isAzTowardsArea equals: true.
-	
-	originPointAbsCoord := AbsoluteCoordinates latitudeInDegrees: 48.01 longitudeInDegrees: -4.62.
-	headingInDegree := 45.
-	
-	isAzTowardsArea := GeodesicUtils isAzimuthTowardsAreaFrom: originPointAbsCoord azimuth: headingInDegree area: listPointsArea.
-	
-	self assert: isAzTowardsArea equals: false.
-	
-	
 
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInDegrees: headingInDegree
+		                   area: listPointsArea.
+
+	self assert: isAzTowardsArea.
+
+	originPointAbsCoord := AbsoluteCoordinates
+		                       latitudeInDegrees: 48.34
+		                       longitudeInDegrees: -4.62.
+	headingInDegree := 225.
+
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInDegrees: headingInDegree
+		                   area: listPointsArea.
+	self assert: isAzTowardsArea.
+
+	headingInDegree := 180.
+
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInDegrees: headingInDegree
+		                   area: listPointsArea.
+
+	self assert: isAzTowardsArea.
+
+	originPointAbsCoord := AbsoluteCoordinates
+		                       latitudeInDegrees: 48.01
+		                       longitudeInDegrees: -4.62.
+	headingInDegree := 45.
+
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInDegrees: headingInDegree
+		                   area: listPointsArea.
+
+	self deny: isAzTowardsArea
+]
+
+{ #category : #tests }
+GeodesicUtilsTest >> testIsAzimuthTowardsAreaFromAzimuthInRadiansArea [
+
+	| originPointAbsCoord isAzTowardsArea listPointsArea headingInDegree |
+	originPointAbsCoord := AbsoluteCoordinates
+		                       latitudeInDegrees: 48.28275
+		                       longitudeInDegrees: -4.70553.
+
+	listPointsArea := OrderedCollection new.
+	listPointsArea add: (AbsoluteCoordinates
+			 latitudeInDegrees: 48.32676
+			 longitudeInDegrees: -4.68284).
+	listPointsArea add: (AbsoluteCoordinates
+			 latitudeInDegrees: 48.33995
+			 longitudeInDegrees: -4.65976).
+	listPointsArea add: (AbsoluteCoordinates
+			 latitudeInDegrees: 48.3117
+			 longitudeInDegrees: -4.60466).
+	listPointsArea add: (AbsoluteCoordinates
+			 latitudeInDegrees: 48.29603
+			 longitudeInDegrees: -4.62295).
+
+	headingInDegree := 45.
+
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInRadians: headingInDegree degreesToRadians 
+		                   area: listPointsArea.
+
+	self assert: isAzTowardsArea.
+
+	originPointAbsCoord latitudeInDegrees: 48.29603.
+
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInRadians: headingInDegree degreesToRadians
+		                   area: listPointsArea.
+
+	self assert: isAzTowardsArea.
+
+	headingInDegree := -45.
+
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInRadians: headingInDegree degreesToRadians
+		                   area: listPointsArea.
+
+	self deny: isAzTowardsArea.
+
+	headingInDegree := 90.
+
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInRadians: headingInDegree degreesToRadians
+		                   area: listPointsArea.
+
+	self assert: isAzTowardsArea.
+
+	originPointAbsCoord := AbsoluteCoordinates
+		                       latitudeInDegrees: 48.34
+		                       longitudeInDegrees: -4.62.
+	headingInDegree := 225.
+
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInRadians: headingInDegree degreesToRadians
+		                   area: listPointsArea.
+
+	self assert: isAzTowardsArea.
+
+	headingInDegree := 180.
+
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInRadians: headingInDegree degreesToRadians
+		                   area: listPointsArea.
+
+	self assert: isAzTowardsArea.
+
+	originPointAbsCoord := AbsoluteCoordinates
+		                       latitudeInDegrees: 48.01
+		                       longitudeInDegrees: -4.62.
+	headingInDegree := 45.
+
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInRadians: headingInDegree degreesToRadians
+		                   area: listPointsArea.
+
+	self deny: isAzTowardsArea
 ]
 
 { #category : #tests }
 GeodesicUtilsTest >> testIsAzimuthTowardsRectangleArea [
 
-	| originPointAbsCoord isAzTowardsArea listPointsArea headingInDegree|
-	
-	originPointAbsCoord := AbsoluteCoordinates latitudeInDegrees: 48.20146040354154 longitudeInDegrees: -4.492.
-	
+	| originPointAbsCoord isAzTowardsArea listPointsArea headingInDegree |
+	originPointAbsCoord := AbsoluteCoordinates
+		                       latitudeInDegrees: 48.20146040354154
+		                       longitudeInDegrees: -4.492.
+
 	listPointsArea := OrderedCollection new.
-	listPointsArea add: (AbsoluteCoordinates latitudeInDegrees: 48.20998 longitudeInDegrees: -4.493).
-	listPointsArea add: (AbsoluteCoordinates latitudeInDegrees: 48.20998 longitudeInDegrees: -4.491).
-	listPointsArea add: (AbsoluteCoordinates latitudeInDegrees: 48.208 longitudeInDegrees: -4.491).
-	listPointsArea add: (AbsoluteCoordinates latitudeInDegrees: 48.208 longitudeInDegrees: -4.493).
-	
+	listPointsArea add: (AbsoluteCoordinates
+			 latitudeInDegrees: 48.20998
+			 longitudeInDegrees: -4.493).
+	listPointsArea add: (AbsoluteCoordinates
+			 latitudeInDegrees: 48.20998
+			 longitudeInDegrees: -4.491).
+	listPointsArea add: (AbsoluteCoordinates
+			 latitudeInDegrees: 48.208
+			 longitudeInDegrees: -4.491).
+	listPointsArea add: (AbsoluteCoordinates
+			 latitudeInDegrees: 48.208
+			 longitudeInDegrees: -4.493).
+
 	headingInDegree := 0.
 
-	isAzTowardsArea := GeodesicUtils isAzimuthTowardsAreaFrom: originPointAbsCoord azimuth: headingInDegree area: listPointsArea.
-	
-	self assert: isAzTowardsArea equals: true.
-	
+	isAzTowardsArea := GeodesicUtils
+		                   isAzimuthTowardsAreaFrom: originPointAbsCoord
+		                   azimuthInDegrees: headingInDegree
+		                   area: listPointsArea.
+
+	self assert: isAzTowardsArea
 ]
