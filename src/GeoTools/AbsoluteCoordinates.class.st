@@ -591,6 +591,13 @@ AbsoluteCoordinates >> copy [
 ]
 
 { #category : #testing }
+AbsoluteCoordinates >> isBelowSeaLevel [
+	"Sea level (sometimes referred to by its acronym as MSL, Mean Sea Level) is the average position of the sea surface, constituting a reference level considered stable. We consider it to be at an altitude of 0 meters by convention."
+
+	^ self altitudeInMeters notNil and: [ self altitudeInMeters < 0 ]
+]
+
+{ #category : #testing }
 AbsoluteCoordinates >> isEmpty [
 
 	^ self latitudeInDegrees isNil and: [ self longitudeInDegrees isNil and: [ self altitudeInMeters isNil ] ]
