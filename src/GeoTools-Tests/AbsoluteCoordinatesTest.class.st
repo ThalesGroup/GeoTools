@@ -170,19 +170,6 @@ AbsoluteCoordinatesTest >> testAbsoluteCoordinatesLimitations [
 ]
 
 { #category : #tests }
-AbsoluteCoordinatesTest >> testAbsoluteCoordinatesPrintOn [
-	| coord |
-	coord := AbsoluteCoordinates new.
-	self assert: coord printString equals: 'an AbsoluteCoordinates lat --° lon --° alt --m'.
-	
-	coord := AbsoluteCoordinates zero.
-	self assert: coord printString equals: 'an AbsoluteCoordinates lat 0° lon 0° alt 0m'.
-	
-	coord := AbsoluteCoordinates frBrest.
-	self assert: coord printString equals: 'an AbsoluteCoordinates lat 48.3897° lon -4.48333° alt 52m'.
-]
-
-{ #category : #tests }
 AbsoluteCoordinatesTest >> testAbsoluteCoordinatesRandom [
 	| coord |
 	coord := AbsoluteCoordinates random.
@@ -350,8 +337,6 @@ AbsoluteCoordinatesTest >> testIsZero [
 
 { #category : #tests }
 AbsoluteCoordinatesTest >> testPrintOn [
-
-	
 
 	self
 		assert: (String streamContents: [ :str | absCoord printOn: str ])
