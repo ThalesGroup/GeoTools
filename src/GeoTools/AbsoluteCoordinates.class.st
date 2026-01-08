@@ -738,12 +738,65 @@ AbsoluteCoordinates >> normalizeLatitudeInDegrees: aValueInDegrees [
 ]
 
 { #category : #printing }
+AbsoluteCoordinates >> printAltitudeOn: aStream [
+
+	self altitude
+		ifNil: [ aStream nextPutAll: 'Not valid altitude' ]
+		ifNotNil: [ :e |
+				AbstractAbsoluteCoordinatesPrinter default
+					printAltitude: e
+					on: aStream ]
+]
+
+{ #category : #printing }
+AbsoluteCoordinates >> printAltitudeString [
+
+	^ String streamContents: [ :stream | self printAltitudeOn: stream ]
+]
+
+{ #category : #printing }
+AbsoluteCoordinates >> printLatitudeOn: aStream [
+
+	self latitude
+		ifNil: [ aStream nextPutAll: 'Not valid latitude' ]
+		ifNotNil: [ :e |
+				AbstractAbsoluteCoordinatesPrinter default
+					printLatitude: e
+					on: aStream ]
+]
+
+{ #category : #printing }
+AbsoluteCoordinates >> printLatitudeString [
+
+	^ String streamContents: [ :stream | self printLatitudeOn: stream ]
+]
+
+{ #category : #printing }
+AbsoluteCoordinates >> printLongitudeOn: aStream [
+
+	self longitude
+		ifNil: [ aStream nextPutAll: 'Not valid longitude' ]
+		ifNotNil: [ :e |
+				AbstractAbsoluteCoordinatesPrinter default
+					printLongitude: e
+					on: aStream ]
+]
+
+{ #category : #printing }
+AbsoluteCoordinates >> printLongitudeString [
+
+	^ String streamContents: [ :stream | self printLongitudeOn: stream ]
+]
+
+{ #category : #printing }
 AbsoluteCoordinates >> printOn: aStream [
-	super printOn: aStream.
-	aStream
-		nextPutAll: ' lat ', (self latitudeInDegrees ifNil:['--']) asString,'°';
-		nextPutAll: ' lon ', (self longitudeInDegrees ifNil:['--']) asString,'°';
-		nextPutAll: ' alt ', (self altitudeInMeters ifNil:['--']) asString,'m'
+
+	self isValid
+		ifFalse: [ aStream nextPutAll: 'No valid coordinates' ]
+		ifTrue: [
+				AbstractAbsoluteCoordinatesPrinter default
+					printAbsoluteCoordinates: self
+					on: aStream ]
 ]
 
 { #category : #accessing }
